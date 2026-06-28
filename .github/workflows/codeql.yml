@@ -57,6 +57,17 @@ jobs:
         if: matrix.language == 'java-kotlin'
         run: ./gradlew assemble
 
+      - name: Select Xcode 26
+        if: matrix.language == 'swift'
+        run: |
+          XCODE_26=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE_26" ]; then
+            echo "No Xcode 26.x found, using default"
+          else
+            echo "Using $XCODE_26"
+            sudo xcode-select -s "$XCODE_26"
+          fi
+
       - name: Build (Xcode)
         if: matrix.language == 'swift'
         run: |
