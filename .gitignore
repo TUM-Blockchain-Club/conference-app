@@ -27,3 +27,6 @@ DerivedData/
 
 # Kotlin
 *.class
+
+# iOS build output
+iosApp/build/
