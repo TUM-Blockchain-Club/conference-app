@@ -37,13 +37,13 @@ jobs:
           java-version: '17'
           distribution: temurin
 
-      - name: Set up Gradle cache
-        if: matrix.language == 'java-kotlin'
+      - name: Set up Gradle and Konan cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
