@@ -63,7 +63,10 @@ jobs:
           xcodebuild build \
             -project iosApp/iosApp.xcodeproj \
             -scheme iosApp \
-            -destination 'generic/platform=iOS Simulator'
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES
 
       - name: Analyze
         uses: github/codeql-action/analyze@v4
