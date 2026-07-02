@@ -1,4 +1,12 @@
 spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
   datasource:
     url: jdbc:postgresql://localhost:5432/asmara
     username: asmara
