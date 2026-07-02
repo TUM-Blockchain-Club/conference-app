@@ -1,4 +1,4 @@
-.PHONY: android-run ios-run build clean help
+.PHONY: android-run ios-run build clean help dev
 
 help: ## List all targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -28,3 +28,6 @@ build: ## Full compilation check
 
 clean: ## Clean all build outputs
 	./gradlew clean
+
+dev: ## Start server + launch Android app for development
+	./scripts/start-dev.sh
