@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "asmara"
-include(":shared", ":androidApp")
+include(":app:shared", ":app:androidApp")

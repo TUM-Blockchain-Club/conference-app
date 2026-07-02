@@ -29,4 +29,4 @@ DerivedData/
 *.class
 
 # iOS build output
-iosApp/build/
+app/iosApp/build/
