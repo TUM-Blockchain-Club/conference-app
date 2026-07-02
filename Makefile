@@ -14,6 +14,15 @@ ios-run: ## Build and run iOS app on simulator
 	xcrun simctl install booted app/iosApp/build/Build/Products/Debug-iphonesimulator/iosApp.app
 	xcrun simctl launch booted com.conference.asmara
 
+server-run: ## Start Spring Boot server
+	./gradlew :server:bootRun
+
+server-build: ## Build server module
+	./gradlew :server:build
+
+server-test: ## Run server tests
+	./gradlew :server:test
+
 build: ## Full compilation check
 	./gradlew build
 
