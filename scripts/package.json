@@ -1,0 +1,12 @@
+{
+  "name": "conference-app-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed": "node seed-supabase.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

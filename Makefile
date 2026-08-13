@@ -1,4 +1,4 @@
-.PHONY: android-run ios-run build clean help
+.PHONY: android-run ios-run build clean seed help
 
 help: ## List all targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -19,3 +19,6 @@ build: ## Full compilation check
 
 clean: ## Clean all build outputs
 	./gradlew clean
+
+seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+	cd scripts && npm install && npm run seed
