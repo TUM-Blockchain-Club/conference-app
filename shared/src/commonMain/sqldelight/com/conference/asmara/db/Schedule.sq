@@ -1,0 +1,133 @@
+-- SQLite mirror of the Postgres schedule tables. Timestamps are stored as
+-- INTEGER epoch millis (kotlin.time.Instant.toEpochMilliseconds()).
+
+CREATE TABLE trackEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  color TEXT,
+  sortOrder INTEGER NOT NULL
+);
+
+CREATE TABLE locationEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  name TEXT NOT NULL,
+  floor TEXT,
+  capacity INTEGER
+);
+
+CREATE TABLE speakerEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  name TEXT NOT NULL,
+  title TEXT,
+  company TEXT,
+  bio TEXT,
+  photoUrl TEXT,
+  linksJson TEXT NOT NULL
+);
+
+CREATE TABLE eventEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  startTime INTEGER NOT NULL,
+  endTime INTEGER NOT NULL,
+  trackId TEXT REFERENCES trackEntity(id),
+  locationId TEXT REFERENCES locationEntity(id),
+  eventType TEXT NOT NULL,
+  isPublished INTEGER NOT NULL
+);
+
+CREATE TABLE eventSpeakerEntity (
+  eventId TEXT NOT NULL REFERENCES eventEntity(id),
+  speakerId TEXT NOT NULL REFERENCES speakerEntity(id),
+  role TEXT NOT NULL,
+  sortOrder INTEGER NOT NULL,
+  PRIMARY KEY (eventId, speakerId)
+);
+
+-- Single-row table holding the last successful sync timestamp.
+CREATE TABLE syncMetadata (
+  id INTEGER NOT NULL PRIMARY KEY DEFAULT 0 CHECK (id = 0),
+  lastSyncedAt INTEGER
+);
+
+selectSchedule:
+SELECT
+  event.id AS eventId,
+  event.slug AS eventSlug,
+  event.title AS eventTitle,
+  event.description AS eventDescription,
+  event.startTime AS startTime,
+  event.endTime AS endTime,
+  event.eventType AS eventType,
+  event.isPublished AS isPublished,
+  track.id AS trackId,
+  track.slug AS trackSlug,
+  track.name AS trackName,
+  track.description AS trackDescription,
+  track.color AS trackColor,
+  track.sortOrder AS trackSortOrder,
+  location.id AS locationId,
+  location.slug AS locationSlug,
+  location.name AS locationName,
+  location.floor AS locationFloor,
+  location.capacity AS locationCapacity
+FROM eventEntity AS event
+LEFT JOIN trackEntity AS track ON track.id = event.trackId
+LEFT JOIN locationEntity AS location ON location.id = event.locationId
+ORDER BY event.startTime ASC;
+
+selectSpeakersForEvents:
+SELECT eventSpeakerEntity.eventId AS eventId, eventSpeakerEntity.role AS role, eventSpeakerEntity.sortOrder AS sortOrder, speakerEntity.*
+FROM eventSpeakerEntity
+JOIN speakerEntity ON speakerEntity.id = eventSpeakerEntity.speakerId
+ORDER BY eventSpeakerEntity.eventId ASC, eventSpeakerEntity.sortOrder ASC;
+
+deleteAllTracks:
+DELETE FROM trackEntity;
+
+insertTrack:
+INSERT INTO trackEntity(id, slug, name, description, color, sortOrder)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteAllLocations:
+DELETE FROM locationEntity;
+
+insertLocation:
+INSERT INTO locationEntity(id, slug, name, floor, capacity)
+VALUES (?, ?, ?, ?, ?);
+
+deleteAllSpeakers:
+DELETE FROM speakerEntity;
+
+insertSpeaker:
+INSERT INTO speakerEntity(id, slug, name, title, company, bio, photoUrl, linksJson)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAllEvents:
+DELETE FROM eventEntity;
+
+insertEvent:
+INSERT INTO eventEntity(id, slug, title, description, startTime, endTime, trackId, locationId, eventType, isPublished)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAllEventSpeakers:
+DELETE FROM eventSpeakerEntity;
+
+insertEventSpeaker:
+INSERT INTO eventSpeakerEntity(eventId, speakerId, role, sortOrder)
+VALUES (?, ?, ?, ?);
+
+selectLastSyncedAt:
+SELECT lastSyncedAt FROM syncMetadata WHERE id = 0;
+
+upsertLastSyncedAt:
+INSERT OR REPLACE INTO syncMetadata(id, lastSyncedAt) VALUES (0, ?);
+
+countEvents:
+SELECT COUNT(*) FROM eventEntity;

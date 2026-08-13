@@ -2,4 +2,4 @@ package com.conference.asmara
 
 import androidx.compose.ui.window.ComposeUIViewController
 
-fun MainViewController() = ComposeUIViewController { App() }
+fun MainViewController() = ComposeUIViewController { App(iosPlatformModule()) }

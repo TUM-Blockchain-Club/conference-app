@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tum-blockchain-club.github.io/conference-app/schedule.schema.json",
+  "title": "Conference schedule seed document",
+  "description": "Slug-keyed programme data imported into Supabase via public.import_schedule(). The slug is the natural key used to match rows across imports; it has no server-generated UUID at authoring time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tracks", "locations", "speakers", "events"],
+  "definitions": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    }
+  },
+  "properties": {
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string" },
+          "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "uniqueItems": false
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "name": { "type": "string", "minLength": 1 },
+          "floor": { "type": "string" },
+          "capacity": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "speakers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "name": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "company": { "type": "string" },
+          "bio": { "type": "string" },
+          "photo_url": { "type": "string", "format": "uri" },
+          "links": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "format": "uri" }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "title", "start_time", "end_time"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "title": { "type": "string", "minLength": 1 },
+          "description": { "type": "string" },
+          "start_time": { "type": "string", "format": "date-time" },
+          "end_time": { "type": "string", "format": "date-time" },
+          "event_type": {
+            "type": "string",
+            "enum": ["talk", "panel", "workshop", "keynote", "break"]
+          },
+          "track": { "$ref": "#/definitions/slug" },
+          "location": { "$ref": "#/definitions/slug" },
+          "is_published": { "type": "boolean" },
+          "speakers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["slug"],
+              "properties": {
+                "slug": { "$ref": "#/definitions/slug" },
+                "role": {
+                  "type": "string",
+                  "enum": ["speaker", "moderator", "host"]
+                },
+                "sort_order": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

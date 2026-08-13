@@ -30,3 +30,11 @@ DerivedData/
 
 # iOS build output
 iosApp/build/
+
+# Environment / secrets
+.env
+.env.*
+*.local
+
+# Node (seed script)
+scripts/node_modules/

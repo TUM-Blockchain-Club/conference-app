@@ -1,0 +1,119 @@
+{
+  "tracks": [
+    { "slug": "defi", "name": "DeFi", "description": "Decentralized finance protocols and infrastructure", "color": "#4F46E5", "sort_order": 1 },
+    { "slug": "security", "name": "Security", "description": "Smart contract security and auditing", "color": "#DC2626", "sort_order": 2 },
+    { "slug": "ai-x-crypto", "name": "AI x Crypto", "description": "Intersections of AI and blockchain", "color": "#059669", "sort_order": 3 }
+  ],
+  "locations": [
+    { "slug": "main-stage", "name": "Main Stage", "floor": "Ground Floor", "capacity": 400 },
+    { "slug": "workshop-room-a", "name": "Workshop Room A", "floor": "1st Floor", "capacity": 60 },
+    { "slug": "workshop-room-b", "name": "Workshop Room B", "floor": "1st Floor", "capacity": 60 }
+  ],
+  "speakers": [
+    { "slug": "jane-doe", "name": "Jane Doe", "title": "Researcher", "company": "TUM", "bio": "DeFi researcher focused on protocol design.", "links": { "x": "https://x.com/janedoe" } },
+    { "slug": "alex-smith", "name": "Alex Smith", "title": "Security Engineer", "company": "OpenZeppelin", "bio": "Smart contract auditor.", "links": { "linkedin": "https://linkedin.com/in/alexsmith" } },
+    { "slug": "maria-garcia", "name": "Maria Garcia", "title": "CTO", "company": "Chainlabs", "bio": "Builds oracle infrastructure.", "links": {} },
+    { "slug": "tom-lee", "name": "Tom Lee", "title": "ML Engineer", "company": "DeepMind", "bio": "Works on AI agents for on-chain automation.", "links": { "x": "https://x.com/tomlee" } },
+    { "slug": "sara-kim", "name": "Sara Kim", "title": "Founder", "company": "Kimchain", "bio": "Building zero-knowledge tooling.", "links": { "linkedin": "https://linkedin.com/in/sarakim" } }
+  ],
+  "events": [
+    {
+      "slug": "opening-keynote",
+      "title": "Opening Keynote",
+      "description": "Kicking off the conference.",
+      "start_time": "2026-09-01T09:00:00Z",
+      "end_time": "2026-09-01T09:45:00Z",
+      "event_type": "keynote",
+      "track": "defi",
+      "location": "main-stage",
+      "is_published": true,
+      "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
+    },
+    {
+      "slug": "defi-protocol-design",
+      "title": "Designing Resilient DeFi Protocols",
+      "description": "Lessons from building lending markets.",
+      "start_time": "2026-09-01T10:00:00Z",
+      "end_time": "2026-09-01T10:45:00Z",
+      "event_type": "talk",
+      "track": "defi",
+      "location": "main-stage",
+      "is_published": true,
+      "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
+    },
+    {
+      "slug": "smart-contract-audits-101",
+      "title": "Smart Contract Audits 101",
+      "description": "A practical introduction to auditing.",
+      "start_time": "2026-09-01T10:00:00Z",
+      "end_time": "2026-09-01T11:30:00Z",
+      "event_type": "workshop",
+      "track": "security",
+      "location": "workshop-room-a",
+      "is_published": true,
+      "speakers": [{ "slug": "alex-smith", "role": "speaker", "sort_order": 0 }]
+    },
+    {
+      "slug": "oracle-infrastructure-panel",
+      "title": "The Future of Oracle Infrastructure",
+      "description": "Panel discussion on oracle design tradeoffs.",
+      "start_time": "2026-09-01T11:00:00Z",
+      "end_time": "2026-09-01T11:45:00Z",
+      "event_type": "panel",
+      "track": "defi",
+      "location": "main-stage",
+      "is_published": true,
+      "speakers": [
+        { "slug": "maria-garcia", "role": "moderator", "sort_order": 0 },
+        { "slug": "jane-doe", "role": "speaker", "sort_order": 1 }
+      ]
+    },
+    {
+      "slug": "lunch-break-day-1",
+      "title": "Lunch Break",
+      "description": "",
+      "start_time": "2026-09-01T12:00:00Z",
+      "end_time": "2026-09-01T13:00:00Z",
+      "event_type": "break",
+      "location": "main-stage",
+      "is_published": true,
+      "speakers": []
+    },
+    {
+      "slug": "ai-agents-onchain",
+      "title": "AI Agents for On-Chain Automation",
+      "description": "How autonomous agents interact with smart contracts.",
+      "start_time": "2026-09-02T09:30:00Z",
+      "end_time": "2026-09-02T10:15:00Z",
+      "event_type": "talk",
+      "track": "ai-x-crypto",
+      "location": "main-stage",
+      "is_published": true,
+      "speakers": [{ "slug": "tom-lee", "role": "speaker", "sort_order": 0 }]
+    },
+    {
+      "slug": "zk-tooling-workshop",
+      "title": "Hands-on Zero-Knowledge Tooling",
+      "description": "Build a simple ZK circuit from scratch.",
+      "start_time": "2026-09-02T10:30:00Z",
+      "end_time": "2026-09-02T12:00:00Z",
+      "event_type": "workshop",
+      "track": "security",
+      "location": "workshop-room-b",
+      "is_published": true,
+      "speakers": [{ "slug": "sara-kim", "role": "speaker", "sort_order": 0 }]
+    },
+    {
+      "slug": "closing-remarks",
+      "title": "Closing Remarks",
+      "description": "Wrapping up the conference.",
+      "start_time": "2026-09-02T17:00:00Z",
+      "end_time": "2026-09-02T17:30:00Z",
+      "event_type": "keynote",
+      "track": "defi",
+      "location": "main-stage",
+      "is_published": false,
+      "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
+    }
+  ]
+}
