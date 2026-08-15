@@ -24,6 +24,11 @@ val supabasePublishableKey = supabaseSetting("supabase.publishableKey", "sb_publ
 
 val generateSupabaseConfig = tasks.register("generateSupabaseConfig") {
     val outputDir = layout.buildDirectory.dir("generated/supabaseConfig/commonMain/kotlin")
+    // Without these the task has outputs but no inputs, so Gradle calls it
+    // UP-TO-DATE forever and editing local.properties silently keeps the old
+    // (often placeholder) values baked into the build.
+    inputs.property("supabaseUrl", supabaseUrl)
+    inputs.property("supabasePublishableKey", supabasePublishableKey)
     outputs.dir(outputDir)
     doLast {
         val file = outputDir.get().asFile.resolve("com/conference/asmara/config/SupabaseConfig.kt")

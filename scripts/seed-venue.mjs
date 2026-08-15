@@ -25,6 +25,18 @@ function fail(message) {
   process.exit(1);
 }
 
+// Node's fetch reports every connect-layer problem as a bare "TypeError: fetch
+// failed" and hides the real reason (ECONNREFUSED, ENOTFOUND, TLS) in
+// err.cause, which can itself be nested. Walk the whole chain.
+function describeError(err) {
+  let out = err.stack ?? String(err);
+  for (let cause = err.cause; cause; cause = cause.cause) {
+    const code = cause.code ? `${cause.code} ` : "";
+    out += `\n  cause: ${code}${cause.message ?? cause}`;
+  }
+  return out;
+}
+
 async function loadJson(filePath) {
   const raw = await readFile(filePath, "utf-8");
   return JSON.parse(raw);
@@ -128,15 +140,20 @@ async function main() {
   if (!serviceRoleKey) fail("SUPABASE_SERVICE_ROLE_KEY is not set");
 
   const endpoint = new URL("/rest/v1/rpc/import_venue", supabaseUrl);
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: serviceRoleKey,
-      Authorization: `Bearer ${serviceRoleKey}`,
-    },
-    body: JSON.stringify({ payload: data }),
-  });
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({ payload: data }),
+    });
+  } catch (err) {
+    fail(`could not reach ${endpoint} — is Supabase running? ${describeError(err)}`);
+  }
 
   const body = await response.text();
   if (!response.ok) {
@@ -147,4 +164,4 @@ async function main() {
   console.log(JSON.stringify(JSON.parse(body), null, 2));
 }
 
-main().catch((err) => fail(err.stack ?? String(err)));
+main().catch((err) => fail(describeError(err)));

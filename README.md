@@ -227,20 +227,28 @@ supabase start   # from the repo root; applies supabase/migrations/*.sql automat
 ```
 
 Prints an API URL and `anon`/`service_role` keys. Put the `anon` key in `local.properties`
-as `supabase.publishableKey`. For `supabase.url`, use the emulator's alias for the host
-loopback — **not** `127.0.0.1`, which resolves to the emulator itself:
+as `supabase.publishableKey`, and point `supabase.url` at the device's own loopback:
 
 ```properties
-supabase.url=http://10.0.2.2:54321
+supabase.url=http://127.0.0.1:54321
 ```
 
-Android blocks plain HTTP by default; `androidApp` ships a network security config
-(`res/xml/network_security_config.xml`) that allows cleartext to `10.0.2.2`/`localhost`
-only, so this works without weakening the release build's HTTPS-only policy elsewhere.
+`127.0.0.1` means the *device*, not your Mac, so `make android-run` runs
+`adb reverse tcp:54321 tcp:54321` (target `adb-reverse`) to forward it back to the host.
+This works on physical devices as well as emulators. The forward is dropped on unplug or
+reboot, so it is re-established on every launch; re-run `make adb-reverse` by hand if you
+attach a device without rebuilding. Emulator-only alternative: `http://10.0.2.2:54321`,
+the emulator's built-in alias for the host loopback, which needs no forwarding.
 
-For [seeding](#seeding-data), run it from the host (not the emulator), so use `127.0.0.1`
-there and the `service_role` key printed by `supabase start` (not the `anon` key — that one
-bypasses RLS and must never end up in `local.properties` or the app):
+Android blocks plain HTTP by default; `androidApp` ships a network security config
+(`res/xml/network_security_config.xml`) that allows cleartext to
+`127.0.0.1`/`10.0.2.2`/`localhost` only, so this works without weakening the release
+build's HTTPS-only policy elsewhere.
+
+[Seeding](#seeding-data) runs on the host, straight to `127.0.0.1` with no forwarding
+involved, and needs the `service_role` key printed by `supabase start` rather than the
+`anon` key — `service_role` bypasses RLS, so it must never end up in `local.properties`
+or the app:
 
 ```bash
 SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SERVICE_ROLE_KEY=<service_role_key> make seed
