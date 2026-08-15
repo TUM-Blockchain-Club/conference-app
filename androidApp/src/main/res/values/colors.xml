@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      The app canvas, duplicated from ui/theme/Palette.kt (Ink900).
+
+      It has to exist twice: this value paints the window before Compose has
+      produced a single frame, and the framework cannot read a Kotlin constant.
+      If Palette.kt's Ink900 ever changes, change it here too — a mismatch shows
+      up as a one-frame flash of the old colour at cold start.
+    -->
+    <color name="tbc_background">#FF111111</color>
+</resources>
