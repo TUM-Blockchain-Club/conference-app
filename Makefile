@@ -1,4 +1,4 @@
-.PHONY: android-run ios-run build clean seed help
+.PHONY: android-run ios-run build clean seed seed-venue help
 
 help: ## List all targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -22,3 +22,6 @@ clean: ## Clean all build outputs
 
 seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 	cd scripts && npm install && npm run seed
+
+seed-venue: ## Seed the venue map from supabase/seed/venue.json (same env vars; run `seed` first — features reference locations)
+	cd scripts && npm install && npm run seed:venue

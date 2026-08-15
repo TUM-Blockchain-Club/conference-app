@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,11 +39,14 @@ import com.conference.asmara.ui.components.EmptyState
 import com.conference.asmara.ui.components.ScreenFooter
 import com.conference.asmara.ui.components.ScreenTitle
 import com.conference.asmara.ui.components.SectionHeader
+import com.conference.asmara.ui.components.TbcButton
+import com.conference.asmara.ui.components.TbcButtonStyle
 import com.conference.asmara.ui.components.TbcCard
 import com.conference.asmara.ui.components.TbcIconButton
 import com.conference.asmara.ui.components.TbcScaffold
 import com.conference.asmara.ui.detail.components.SpeakerRow
 import com.conference.asmara.ui.icons.TbcIcons
+import com.conference.asmara.ui.map.MapFocusRequests
 import com.conference.asmara.ui.theme.TbcTheme
 import com.conference.asmara.ui.theme.eventTypeColor
 import com.conference.asmara.ui.theme.trackColor
@@ -68,6 +72,7 @@ data class EventDetailScreen(val eventId: String) : Screen {
             koin.get<EventDetailScreenModel> { parametersOf(eventId) }
         }
         val state by screenModel.state.collectAsState()
+        val focusRequests = remember(koin) { koin.get<MapFocusRequests>() }
         val spacing = TbcTheme.spacing
 
         TbcScaffold {
@@ -94,7 +99,19 @@ data class EventDetailScreen(val eventId: String) : Screen {
                         icon = TbcIcons.Calendar,
                     )
 
-                    is EventDetailUiState.Content -> EventDetailContent(current.event)
+                    is EventDetailUiState.Content -> EventDetailContent(
+                        event = current.event,
+                        onShowOnMap = current.mappedLocationId?.let { locationId ->
+                            {
+                                // Request first, then pop: the shell reads the
+                                // request as it comes back into composition, so
+                                // the tab is already switching by the time the
+                                // pop animation finishes.
+                                focusRequests.request(locationId)
+                                navigator.pop()
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -102,7 +119,11 @@ data class EventDetailScreen(val eventId: String) : Screen {
 }
 
 @Composable
-private fun EventDetailContent(event: Event, modifier: Modifier = Modifier) {
+private fun EventDetailContent(
+    event: Event,
+    modifier: Modifier = Modifier,
+    onShowOnMap: (() -> Unit)? = null,
+) {
     val tokens = TbcTheme.tokens
     val spacing = TbcTheme.spacing
 
@@ -129,6 +150,17 @@ private fun EventDetailContent(event: Event, modifier: Modifier = Modifier) {
                     DetailFact(
                         icon = TbcIcons.MapPin,
                         text = listOfNotNull(location.name, location.floor).joinToString(" · "),
+                    )
+                }
+                if (onShowOnMap != null) {
+                    // Tonal, not Primary: the screen's one primary action slot
+                    // belongs to whatever the attendee came here to *do*, and
+                    // this is a way to look at the room, not a commitment.
+                    TbcButton(
+                        text = "Show on map",
+                        onClick = onShowOnMap,
+                        style = TbcButtonStyle.Tonal,
+                        icon = TbcIcons.Map,
                     )
                 }
                 event.track?.let { track ->

@@ -41,82 +41,113 @@ import com.conference.asmara.ui.schedule.components.ScheduleNotPublished
 import com.conference.asmara.ui.theme.TbcTheme
 import org.koin.compose.getKoin
 
+/**
+ * The Schedule tab, as a standalone `Screen`.
+ *
+ * The tab shell renders [ScheduleListContent] directly rather than pushing
+ * this, for the inset reason spelled out in `RootScreen`. This wrapper is kept
+ * because a `Screen` is the unit Voyager can push, and losing the ability to
+ * open the schedule on its own for the sake of deleting six lines would be a
+ * bad trade.
+ */
 class ScheduleListScreen : Screen {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         // Hoisted: rememberScreenModel's lambda is @DisallowComposableCalls.
         val koin = getKoin()
-        val screenModel = rememberScreenModel { koin.get<ScheduleScreenModel>() }
-        val state by screenModel.state.collectAsState()
-        val errorMessage = state.errorMessage
-        val tokens = TbcTheme.tokens
-        val spacing = TbcTheme.spacing
-
         // decorated = false: the grid and glow are for landing screens. Behind a
         // dense list they compete with the cards.
         TbcScaffold {
-            Column(Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = spacing.screenH)
-                        .padding(top = spacing.xxl, bottom = spacing.lg),
-                    verticalArrangement = Arrangement.spacedBy(spacing.lg),
-                ) {
-                    ScreenTitle(
-                        title = "Schedule",
-                        subtitle = state.sessionCountLabel(),
-                    )
-                    if (state.banner == ScheduleBanner.OFFLINE_SHOWING_CACHE) {
-                        // Warning, not Error: the schedule below is real and
-                        // usable, it is only possibly out of date.
-                        Banner(
-                            title = "Offline",
-                            text = state.lastSyncedLabel
-                                ?.let { "Showing the saved schedule, last updated $it." }
-                                ?: "Showing the saved schedule.",
-                            style = BannerStyle.Warning,
-                        )
-                    }
-                    ScheduleFilterBar(
-                        filters = state.filters,
-                        tracks = state.tracks,
-                        onQueryChange = screenModel::onQueryChange,
-                        onTrackToggle = screenModel::onTrackToggle,
-                        onUpcomingToggle = screenModel::onUpcomingToggle,
-                    )
-                }
+            ScheduleListContent(
+                screenModel = rememberScreenModel { koin.get<ScheduleScreenModel>() },
+                onEventClick = { navigator.push(EventDetailScreen(it)) },
+            )
+        }
+    }
+}
 
-                val refreshState = rememberPullToRefreshState()
-                PullToRefreshBox(
-                    isRefreshing = state.isRefreshing,
-                    onRefresh = screenModel::onPullToRefresh,
-                    modifier = Modifier.fillMaxSize(),
+/**
+ * The Schedule tab's body, without a scaffold of its own.
+ *
+ * Split out so the tab shell can host it: `TbcScaffold` applies
+ * `WindowInsets.safeDrawing`, and nesting one inside the shell's would apply
+ * the insets twice — visible as a tab bar floating a home-indicator's height
+ * above the bottom of the screen.
+ *
+ * @param screenModel passed in rather than obtained here, because Voyager's
+ *   `rememberScreenModel` is an extension on `Screen` and this is not one. That
+ *   is the right constraint: it keeps the model's lifetime tied to whichever
+ *   `Screen` is hosting the content, which for the shell is the shell itself —
+ *   so the schedule's state survives a trip to the Map tab and back.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScheduleListContent(
+    screenModel: ScheduleScreenModel,
+    onEventClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val state by screenModel.state.collectAsState()
+    val errorMessage = state.errorMessage
+    val tokens = TbcTheme.tokens
+    val spacing = TbcTheme.spacing
+
+    Column(modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = spacing.screenH)
+                .padding(top = spacing.xxl, bottom = spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(spacing.lg),
+        ) {
+            ScreenTitle(
+                title = "Schedule",
+                subtitle = state.sessionCountLabel(),
+            )
+            if (state.banner == ScheduleBanner.OFFLINE_SHOWING_CACHE) {
+                // Warning, not Error: the schedule below is real and
+                // usable, it is only possibly out of date.
+                Banner(
+                    title = "Offline",
+                    text = state.lastSyncedLabel
+                        ?.let { "Showing the saved schedule, last updated $it." }
+                        ?: "Showing the saved schedule.",
+                    style = BannerStyle.Warning,
+                )
+            }
+            ScheduleFilterBar(
+                filters = state.filters,
+                tracks = state.tracks,
+                onQueryChange = screenModel::onQueryChange,
+                onTrackToggle = screenModel::onTrackToggle,
+                onUpcomingToggle = screenModel::onUpcomingToggle,
+            )
+        }
+
+        val refreshState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = screenModel::onPullToRefresh,
+            modifier = Modifier.fillMaxSize(),
+            state = refreshState,
+            indicator = {
+                PullToRefreshDefaults.Indicator(
                     state = refreshState,
-                    indicator = {
-                        PullToRefreshDefaults.Indicator(
-                            state = refreshState,
-                            isRefreshing = state.isRefreshing,
-                            modifier = Modifier.align(Alignment.TopCenter),
-                            containerColor = tokens.surfaceRaised,
-                            color = tokens.accent,
-                        )
-                    },
-                ) {
-                    when {
-                        state.isLoading -> ScheduleLoading()
-                        errorMessage != null -> ScheduleError(errorMessage, screenModel::onRetry)
-                        state.isScheduleEmpty -> ScheduleNotPublished()
-                        state.isEmptyResult -> ScheduleNoMatches(screenModel::onClearFilters)
-                        else -> ScheduleDayList(
-                            days = state.days,
-                            onEventClick = { navigator.push(EventDetailScreen(it)) },
-                        )
-                    }
-                }
+                    isRefreshing = state.isRefreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    containerColor = tokens.surfaceRaised,
+                    color = tokens.accent,
+                )
+            },
+        ) {
+            when {
+                state.isLoading -> ScheduleLoading()
+                errorMessage != null -> ScheduleError(errorMessage, screenModel::onRetry)
+                state.isScheduleEmpty -> ScheduleNotPublished()
+                state.isEmptyResult -> ScheduleNoMatches(screenModel::onClearFilters)
+                else -> ScheduleDayList(days = state.days, onEventClick = onEventClick)
             }
         }
     }

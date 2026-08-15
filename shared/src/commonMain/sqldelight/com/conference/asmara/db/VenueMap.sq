@@ -1,0 +1,34 @@
+-- Deliberately *not* a mirror of the Postgres venue tables.
+--
+-- The schedule cache is relational because the UI queries it relationally —
+-- events joined to tracks, filtered, grouped by day. The venue map is the
+-- opposite: one small document, fetched whole, read whole, never queried by
+-- part. Three normalised tables would buy nothing and cost a join, a mapper and
+-- a migration every time the geometry shape changes.
+--
+-- Stored in the existing ScheduleDatabase rather than a second database: one
+-- file, one driver, one Schema.
+--
+-- New in schema version 2 — see 1.sqm for the upgrade path.
+
+CREATE TABLE venueMapCache (
+  id INTEGER NOT NULL PRIMARY KEY DEFAULT 0 CHECK (id = 0),
+  venueSlug TEXT NOT NULL,
+  -- The raw get_venue_map() document. Parsed on read rather than on write, so
+  -- a mapper change ships without a cache migration.
+  documentJson TEXT NOT NULL,
+  fetchedAt INTEGER NOT NULL
+);
+
+selectVenueMap:
+SELECT venueSlug, documentJson, fetchedAt FROM venueMapCache WHERE id = 0;
+
+upsertVenueMap:
+INSERT OR REPLACE INTO venueMapCache(id, venueSlug, documentJson, fetchedAt)
+VALUES (0, ?, ?, ?);
+
+deleteVenueMap:
+DELETE FROM venueMapCache;
+
+countVenueMap:
+SELECT COUNT(*) FROM venueMapCache;

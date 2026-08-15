@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import com.conference.asmara.di.appModule
 import com.conference.asmara.di.dataModule
-import com.conference.asmara.ui.schedule.ScheduleListScreen
+import com.conference.asmara.ui.RootScreen
 import com.conference.asmara.ui.theme.TbcTheme
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
@@ -29,7 +29,9 @@ fun App(platformModule: Module) {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Navigator(ScheduleListScreen())
+                // The tab shell, not a tab: EventDetailScreen pushes onto this
+                // same navigator and so renders over the tab bar.
+                Navigator(RootScreen())
             }
         }
     }
