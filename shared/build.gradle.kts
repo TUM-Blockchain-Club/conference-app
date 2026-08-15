@@ -16,8 +16,7 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use(::load)
 }
 
-fun supabaseSetting(propertyKey: String, default: String): String =
-    localProperties.getProperty(propertyKey) ?: default
+fun supabaseSetting(propertyKey: String, default: String): String = localProperties.getProperty(propertyKey) ?: default
 
 val supabaseUrl = supabaseSetting("supabase.url", "https://your-project-ref.supabase.co")
 val supabasePublishableKey = supabaseSetting("supabase.publishableKey", "sb_publishable_replace_me")
@@ -43,7 +42,7 @@ val generateSupabaseConfig = tasks.register("generateSupabaseConfig") {
                 const val URL = "$supabaseUrl"
                 const val PUBLISHABLE_KEY = "$supabasePublishableKey"
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }
@@ -59,7 +58,7 @@ kotlin {
 
     listOf(
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "shared"
