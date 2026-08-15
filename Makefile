@@ -1,10 +1,14 @@
-.PHONY: android-run ios-run stop-android stop-ios build clean seed seed-venue help \
+.PHONY: android-run ios-run stop-android stop-ios build clean seed seed-venue rls-audit help \
         format format-swift lint lint-swift test test-ios build-android build-ios check ci
 
 # ANDROID_HOME is not exported by every shell profile, so fall back to the
 # location Android Studio installs into. Overridable: `make ADB=/path/to/adb`.
 ANDROID_SDK ?= $(if $(ANDROID_HOME),$(ANDROID_HOME),$(HOME)/Library/Android/sdk)
 ADB ?= $(ANDROID_SDK)/platform-tools/adb
+
+# Homebrew's libpq is keg-only, so `psql` is commonly installed but not on PATH.
+# Overridable: `make PSQL=/path/to/psql`.
+PSQL ?= $(shell command -v psql 2>/dev/null || echo "$$(brew --prefix libpq 2>/dev/null)/bin/psql")
 
 help: ## List all targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -81,3 +85,11 @@ seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUP
 
 seed-venue: ## Seed the venue map from supabase/seed/venue.json (same env vars; run `seed` first — features reference locations)
 	cd scripts && npm install && npm run seed:venue
+
+# The connection string is read out of the running CLI, never stored here: no
+# credential belongs in the repo. See CLAUDE.md, "Secrets".
+rls-audit: ## Audit RLS + grants against the local Supabase DB (needs `supabase start`)
+	@[ -x "$(PSQL)" ] || { echo "psql not found ($(PSQL)) — brew install libpq, or make PSQL=/path/to/psql"; exit 1; }
+	@DB_URL="$$(supabase status -o env | sed -n 's/^DB_URL=//p' | tr -d '\"')"; \
+	[ -n "$$DB_URL" ] || { echo "no DB_URL from \`supabase status\` — is the local stack running?"; exit 1; }; \
+	"$(PSQL)" "$$DB_URL" -f supabase/checks/rls-audit.sql
