@@ -85,8 +85,9 @@ conference-app/
 │   └── iosApp/
 │       ├── iOSApp.swift             # App entry point
 │       └── ContentView.swift        # Hosts Compose UI via UIViewControllerRepresentable
-├── supabase/                        # Migrations, RLS policies, import RPC, seed data + schema
-├── scripts/                         # Node seed script (validates + imports supabase/seed/schedule.json)
+├── docs/                            # DESIGN.md (design system), VENUE-MAP.md (floor-plan authoring)
+├── supabase/                        # Migrations, RLS policies, import RPCs, seed data + schemas
+├── scripts/                         # Node seed scripts (validate + import supabase/seed/*.json)
 ├── gradle/libs.versions.toml        # Version catalog
 ├── Makefile                         # Build & run shortcuts
 └── build.gradle.kts                 # Root build configuration
@@ -102,6 +103,8 @@ make android-run   # Build, install, and launch on Android emulator/device
 make ios-run       # Build and run on iOS Simulator
 make build         # Full compilation check
 make clean         # Clean all build outputs
+make seed          # Import supabase/seed/schedule.json
+make seed-venue    # Import supabase/seed/venue.json (run after `make seed`)
 ```
 
 ### Using Gradle directly
@@ -142,19 +145,24 @@ make ios-run
 
 ## Supabase
 
-The schedule (tracks, locations, speakers, events) lives in Supabase Postgres and is
-cached locally on-device with SQLDelight; the app always reads from that cache
-(`ScheduleRepository.observeSchedule()`) and only hits the network to refresh it.
+The schedule (tracks, locations, speakers, events) and the venue map (venues, levels,
+map features) live in Supabase Postgres and are cached locally on-device with
+SQLDelight; the app always reads from that cache (`ScheduleRepository.observeSchedule()`,
+`VenueMapRepository.observeVenueMap()`) and only hits the network to refresh it.
 
 ### Project layout
 
 | Path | Purpose |
 |------|---------|
 | `supabase/config.toml` | CLI project config, committed alongside migrations |
-| `supabase/migrations/` | Schema, RLS policies, grants, and the `import_schedule()` RPC |
-| `supabase/seed/schedule.schema.json` | JSON Schema for the seed document |
+| `supabase/migrations/` | Schema, RLS policies, grants, and the `import_schedule()` / `import_venue()` / `get_venue_map()` RPCs |
+| `supabase/seed/schedule.schema.json` | JSON Schema for the schedule seed document |
 | `supabase/seed/schedule.json` | Editable programme data (slug-keyed, no UUIDs) |
+| `supabase/seed/venue.schema.json` | JSON Schema for the venue map seed document |
+| `supabase/seed/venue.json` | Editable floor-plan geometry (slug-keyed, no UUIDs) |
 | `scripts/seed-supabase.mjs` | Validates `schedule.json` and imports it via `import_schedule()` |
+| `scripts/seed-venue.mjs` | Validates `venue.json` and imports it via `import_venue()` |
+| `scripts/venue-from-geojson.mjs` | Folds a QGIS GeoJSON export into `venue.json` |
 
 ### Configuring the app
 
@@ -194,6 +202,24 @@ longer present in the file, so the JSON is the full source of truth for each run
 > **Note:** `SUPABASE_SERVICE_ROLE_KEY` bypasses Row Level Security entirely. Never commit
 > it, put it in Kotlin source, or add it to `schedule.json`.
 
+### Seeding the venue map
+
+```bash
+make seed-venue    # same two environment variables
+```
+
+Run it **after** `make seed`: map features reference `locations` rows by slug, and the
+script fails on a slug that `schedule.json` does not define.
+
+`make seed-venue` validates `supabase/seed/venue.json` against its JSON Schema, checks
+that every polygon ring closes and encloses an area, and resolves the location
+cross-references — all before any network call. It then calls the transactional
+`import_venue()` RPC, whose reconciliation is scoped to the venue in the payload.
+
+The floor plan itself is traced in QGIS and folded into `venue.json` by
+`scripts/venue-from-geojson.mjs`. The whole authoring workflow — coordinate system,
+QGIS setup, attribute fields, export — is in **[docs/VENUE-MAP.md](docs/VENUE-MAP.md)**.
+
 ### Running against a local Supabase (Docker)
 
 ```bash
@@ -226,6 +252,10 @@ SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SERVICE_ROLE_KEY=<service_role_key>
 `refresh()` fetches from Supabase and replaces the cache in one transaction, but
 `observeSchedule()` always emits from the cache regardless of whether that refresh
 succeeded — so the UI keeps showing the last known programme when offline.
+
+`VenueMapRepository` works the same way against the same database, with a 24-hour TTL
+instead of 15 minutes: a talk can move an hour before it starts, a wall cannot. The map
+is cached as the raw `get_venue_map()` document in a single row and parsed on read.
 
 ## Configuration
 

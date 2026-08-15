@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tum-blockchain-club.github.io/conference-app/venue.schema.json",
+  "title": "Venue map seed document",
+  "description": "One venue's floor plan, imported into Supabase via public.import_venue(). Coordinates are metres in a venue-local CRS with the origin at the venue's north-west corner, X increasing right (east) and Y increasing down (south) — not longitude/latitude. See docs/VENUE-MAP.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["venue", "levels"],
+  "definitions": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "position": {
+      "type": "array",
+      "description": "[x, y] in venue metres.",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "type": "number" }
+    },
+    "linearRing": {
+      "type": "array",
+      "description": "A closed ring: the last position must repeat the first.",
+      "minItems": 4,
+      "items": { "$ref": "#/definitions/position" }
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "Point" },
+        "coordinates": { "$ref": "#/definitions/position" }
+      }
+    },
+    "polygon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "Polygon" },
+        "coordinates": {
+          "type": "array",
+          "description": "First ring is the exterior; any further rings are holes (a courtyard, a lift core).",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/linearRing" }
+        }
+      }
+    }
+  },
+  "properties": {
+    "venue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name"],
+      "properties": {
+        "slug": { "$ref": "#/definitions/slug" },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "name": { "type": "string", "minLength": 1 },
+          "ordinal": { "type": "integer" },
+          "outline": { "$ref": "#/definitions/polygon" },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["slug", "name", "geometry"],
+              "properties": {
+                "slug": { "$ref": "#/definitions/slug" },
+                "name": { "type": "string", "minLength": 1 },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "stage",
+                    "room",
+                    "food",
+                    "restroom",
+                    "booth",
+                    "entrance",
+                    "stairs",
+                    "elevator",
+                    "corridor",
+                    "other"
+                  ]
+                },
+                "location": {
+                  "$ref": "#/definitions/slug",
+                  "description": "Slug of a locations row in schedule.json. Present only on rooms that host sessions; it is what makes the map schedule-aware."
+                },
+                "geometry": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/polygon" },
+                    { "$ref": "#/definitions/point" }
+                  ]
+                },
+                "label_anchor": { "$ref": "#/definitions/point" },
+                "sort_order": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

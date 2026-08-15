@@ -1,0 +1,12 @@
+-- 1 -> 2: add the venue map cache (see VenueMap.sq).
+--
+-- A .sqm is needed even though the cache is disposable: SQLDelight runs the
+-- CREATE statements in the .sq files only for a *fresh* database. Without this
+-- file, Schema.version stays at 1, an already-installed app never upgrades, and
+-- the first query against venueMapCache fails with "no such table".
+CREATE TABLE venueMapCache (
+  id INTEGER NOT NULL PRIMARY KEY DEFAULT 0 CHECK (id = 0),
+  venueSlug TEXT NOT NULL,
+  documentJson TEXT NOT NULL,
+  fetchedAt INTEGER NOT NULL
+);

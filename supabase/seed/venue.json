@@ -1,0 +1,159 @@
+{
+  "venue": {
+    "slug": "tbc-conference",
+    "name": "TBC Conference Venue"
+  },
+  "levels": [
+    {
+      "slug": "ground",
+      "name": "Ground",
+      "ordinal": 0,
+      "outline": {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [44, 0], [44, 32], [0, 32], [0, 0]]]
+      },
+      "features": [
+        {
+          "slug": "ground-foyer",
+          "name": "Foyer",
+          "category": "corridor",
+          "sort_order": 0,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[4, 24], [40, 24], [40, 28], [4, 28], [4, 24]]]
+          }
+        },
+        {
+          "slug": "main-stage",
+          "name": "Main Stage",
+          "category": "stage",
+          "location": "main-stage",
+          "sort_order": 10,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[4, 4], [30, 4], [30, 22], [4, 22], [4, 4]]]
+          }
+        },
+        {
+          "slug": "ground-catering",
+          "name": "Catering",
+          "category": "food",
+          "sort_order": 20,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[32, 4], [40, 4], [40, 14], [32, 14], [32, 4]]]
+          }
+        },
+        {
+          "slug": "ground-restrooms",
+          "name": "Restrooms",
+          "category": "restroom",
+          "sort_order": 21,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[32, 16], [40, 16], [40, 22], [32, 22], [32, 16]]]
+          }
+        },
+        {
+          "slug": "ground-entrance",
+          "name": "Main Entrance",
+          "category": "entrance",
+          "sort_order": 30,
+          "geometry": { "type": "Point", "coordinates": [22, 30] }
+        },
+        {
+          "slug": "ground-stairs",
+          "name": "Stairs",
+          "category": "stairs",
+          "sort_order": 31,
+          "geometry": { "type": "Point", "coordinates": [31, 26] }
+        },
+        {
+          "slug": "ground-elevator",
+          "name": "Lift",
+          "category": "elevator",
+          "sort_order": 32,
+          "geometry": { "type": "Point", "coordinates": [35, 26] }
+        }
+      ]
+    },
+    {
+      "slug": "first",
+      "name": "1st Floor",
+      "ordinal": 1,
+      "outline": {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [44, 0], [44, 32], [0, 32], [0, 0]]]
+      },
+      "features": [
+        {
+          "slug": "first-corridor",
+          "name": "Corridor",
+          "category": "corridor",
+          "sort_order": 0,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[4, 21], [40, 21], [40, 25], [4, 25], [4, 21]]]
+          }
+        },
+        {
+          "slug": "workshop-room-a",
+          "name": "Workshop Room A",
+          "category": "room",
+          "location": "workshop-room-a",
+          "sort_order": 10,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[4, 4], [20, 4], [20, 19], [4, 19], [4, 4]]]
+          }
+        },
+        {
+          "slug": "workshop-room-b",
+          "name": "Workshop Room B",
+          "category": "room",
+          "location": "workshop-room-b",
+          "sort_order": 11,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[24, 4], [40, 4], [40, 19], [24, 19], [24, 4]]]
+          }
+        },
+        {
+          "slug": "first-restrooms",
+          "name": "Restrooms",
+          "category": "restroom",
+          "sort_order": 20,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[4, 27], [16, 27], [16, 31], [4, 31], [4, 27]]]
+          }
+        },
+        {
+          "slug": "first-sponsor-booths",
+          "name": "Sponsor Booths",
+          "category": "booth",
+          "sort_order": 21,
+          "label_anchor": { "type": "Point", "coordinates": [28, 29] },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[20, 27], [40, 27], [40, 31], [20, 31], [20, 27]]]
+          }
+        },
+        {
+          "slug": "first-stairs",
+          "name": "Stairs",
+          "category": "stairs",
+          "sort_order": 30,
+          "geometry": { "type": "Point", "coordinates": [31, 23] }
+        },
+        {
+          "slug": "first-elevator",
+          "name": "Lift",
+          "category": "elevator",
+          "sort_order": 31,
+          "geometry": { "type": "Point", "coordinates": [35, 23] }
+        }
+      ]
+    }
+  ]
+}

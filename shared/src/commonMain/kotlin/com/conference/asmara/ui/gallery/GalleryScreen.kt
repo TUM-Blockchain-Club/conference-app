@@ -32,6 +32,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.conference.asmara.domain.model.EventType
+import com.conference.asmara.domain.model.FeatureShape
+import com.conference.asmara.domain.model.MapCategory
+import com.conference.asmara.domain.model.MapFeature
+import com.conference.asmara.domain.model.Point
+import com.conference.asmara.domain.model.Polygon
+import com.conference.asmara.domain.model.VenueLevel
 import com.conference.asmara.ui.components.Banner
 import com.conference.asmara.ui.components.BannerStyle
 import com.conference.asmara.ui.components.ColorDot
@@ -58,8 +64,13 @@ import com.conference.asmara.ui.components.TbcScaffold
 import com.conference.asmara.ui.components.TbcSearchField
 import com.conference.asmara.ui.components.TbcTextField
 import com.conference.asmara.ui.icons.TbcIcons
+import com.conference.asmara.ui.map.VenueMapCanvas
+import com.conference.asmara.ui.map.components.MapSessionRow
+import com.conference.asmara.ui.map.label
 import com.conference.asmara.ui.theme.TbcTheme
 import com.conference.asmara.ui.theme.eventTypeColor
+import com.conference.asmara.ui.theme.mapCategoryColor
+import com.conference.asmara.ui.theme.mapCategoryFill
 import com.conference.asmara.ui.theme.trackColor
 
 /**
@@ -120,6 +131,7 @@ class GalleryScreen : Screen {
                 FieldSection()
                 EmptyStateSection()
                 TrackColorSection()
+                VenueMapSection()
 
                 Spacer(Modifier.height(spacing.lg))
                 ScreenFooter(
@@ -574,6 +586,144 @@ private fun TrackRow(name: String, raw: String?, sortOrder: Int) {
         )
     }
 }
+
+/**
+ * The venue map canvas, on a sample floor built here rather than fetched.
+ *
+ * This is the one component in the system whose output is *drawn* rather than
+ * composed, which makes it the one most likely to drift silently: a token
+ * change lands everywhere else through recomposition and here through a
+ * `drawPath` call somebody has to remember to update. A live sample beside the
+ * surface ladder is what makes a wrong fill visible.
+ *
+ * It is interactive on purpose — tap a room. Selection, the highlight ring and
+ * the label promotion are all part of what there is to check.
+ */
+@Composable
+private fun VenueMapSection() {
+    val tokens = TbcTheme.tokens
+    val spacing = TbcTheme.spacing
+    var selected by remember { mutableStateOf<String?>(null) }
+    val level = remember { galleryLevel() }
+
+    GallerySection(title = "Venue map", subtitle = "Tap a room to select it") {
+        Column(verticalArrangement = Arrangement.spacedBy(spacing.md)) {
+            TbcCard(Modifier.fillMaxWidth(), padding = spacing.xs) {
+                Box(Modifier.height(VenueMapSampleHeight)) {
+                    VenueMapCanvas(
+                        level = level,
+                        selectedFeatureId = selected,
+                        onFeatureSelect = { selected = it },
+                    )
+                }
+            }
+
+            // The category legend. Ten categories over five tones — see
+            // mapCategoryColor for why that is deliberate.
+            TbcCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
+                    FieldLabel("Feature categories")
+                    MapCategory.entries.forEach { category ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(spacing.md),
+                        ) {
+                            ColorDot(color = mapCategoryColor(category))
+                            Text(
+                                text = category.label(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = tokens.textPrimary,
+                                modifier = Modifier.weight(1f),
+                            )
+                            // The opaque fill the canvas actually paints, which
+                            // is a flatten() of the dot beside it.
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(MaterialTheme.shapes.extraSmall)
+                                    .background(mapCategoryFill(category, tokens.surfaceCard))
+                                    .border(1.dp, tokens.borderSubtle, MaterialTheme.shapes.extraSmall)
+                            )
+                        }
+                    }
+                }
+            }
+
+            TbcCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
+                    FieldLabel("Selection sheet rows")
+                    MapSessionRow(
+                        label = "Now",
+                        title = "Building Trustless Bridges",
+                        timeLabel = "14:00 – 14:45",
+                        onClick = {},
+                    )
+                    MapSessionRow(
+                        label = "Next",
+                        title = "Zero-Knowledge Proofs in Practice",
+                        timeLabel = "15:00 – 15:45",
+                        onClick = {},
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A sample floor: an outline, a room with a courtyard punched out of it, a
+ * corridor, a food area and two pins. Between them they exercise every branch
+ * the canvas has — hole rendering, the corridor pass, both shape types, and a
+ * label too wide for its room.
+ */
+private fun galleryLevel(): VenueLevel {
+    fun rect(x0: Float, y0: Float, x1: Float, y1: Float) = Polygon(
+        listOf(Point(x0, y0), Point(x1, y0), Point(x1, y1), Point(x0, y1)),
+    )
+    var index = 0
+    fun feature(
+        name: String,
+        category: MapCategory,
+        shape: FeatureShape,
+    ) = MapFeature(
+        id = "gallery-${index++}",
+        slug = name.lowercase().replace(' ', '-'),
+        name = name,
+        category = category,
+        locationId = null,
+        shape = shape,
+        labelAnchor = null,
+        sortOrder = index,
+    )
+
+    return VenueLevel(
+        id = "gallery-level",
+        slug = "gallery",
+        name = "Sample Floor",
+        ordinal = 0,
+        outline = rect(0f, 0f, 44f, 32f),
+        features = listOf(
+            feature("Foyer", MapCategory.CORRIDOR, FeatureShape.Area(rect(4f, 24f, 40f, 28f))),
+            feature(
+                "Main Stage",
+                MapCategory.STAGE,
+                FeatureShape.Area(
+                    rect(4f, 4f, 30f, 22f).copy(
+                        holes = listOf(rect(12f, 10f, 20f, 16f).ring),
+                    ),
+                ),
+            ),
+            feature("Catering", MapCategory.FOOD, FeatureShape.Area(rect(32f, 4f, 40f, 14f))),
+            feature("Restrooms", MapCategory.RESTROOM, FeatureShape.Area(rect(32f, 16f, 40f, 22f))),
+            feature("Main Entrance", MapCategory.ENTRANCE, FeatureShape.Marker(Point(22f, 30f))),
+            feature("Lift", MapCategory.ELEVATOR, FeatureShape.Marker(Point(35f, 26f))),
+        ),
+    )
+}
+
+/** The real canvas fills its parent; the gallery has to bound it. */
+private val VenueMapSampleHeight = 280.dp
 
 @Composable
 private fun GallerySection(

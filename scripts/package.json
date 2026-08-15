@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "seed": "node seed-supabase.mjs"
+    "seed": "node seed-supabase.mjs",
+    "seed:venue": "node seed-venue.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
