@@ -8,50 +8,52 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.conference.asmara.domain.model.EventSpeaker
 import com.conference.asmara.domain.model.SpeakerRole
 import com.conference.asmara.ui.common.InitialsAvatar
+import com.conference.asmara.ui.components.TbcBadge
+import com.conference.asmara.ui.components.TbcCard
+import com.conference.asmara.ui.theme.TbcTheme
 
 @Composable
 fun SpeakerRow(
     eventSpeaker: EventSpeaker,
     modifier: Modifier = Modifier,
 ) {
+    val tokens = TbcTheme.tokens
+    val spacing = TbcTheme.spacing
     val speaker = eventSpeaker.speaker
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // TODO(#4-followup): render speaker.photoUrl once speakers have photos.
-        InitialsAvatar(speaker.name)
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = speaker.name,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            val affiliation = listOfNotNull(speaker.title, speaker.company).joinToString(" @ ")
-            if (affiliation.isNotEmpty()) {
+
+    TbcCard(modifier = modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
+            // TODO(#4-followup): render speaker.photoUrl once speakers have photos.
+            InitialsAvatar(speaker.name)
+            Column(verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
                 Text(
-                    text = affiliation,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = speaker.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = tokens.textPrimary,
                 )
-            }
-            if (eventSpeaker.role != SpeakerRole.SPEAKER) {
-                Text(
-                    text = eventSpeaker.role.label(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            speaker.bio?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                val affiliation = listOfNotNull(speaker.title, speaker.company).joinToString(" · ")
+                if (affiliation.isNotEmpty()) {
+                    Text(
+                        text = affiliation,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = tokens.textMuted,
+                    )
+                }
+                // Only worth the pixels when it is not the default. Badging
+                // every speaker "Speaker" says nothing.
+                if (eventSpeaker.role != SpeakerRole.SPEAKER) {
+                    TbcBadge(text = eventSpeaker.role.label())
+                }
+                speaker.bio?.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = tokens.textMuted,
+                    )
+                }
             }
         }
     }

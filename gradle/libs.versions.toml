@@ -6,8 +6,6 @@ koin = "4.2.1"
 ktor = "3.5.0"
 voyager = "1.1.0-beta03"
 androidx-activity = "1.10.1"
-androidx-appcompat = "1.7.0"
-androidx-compose-bom = "2025.06.00"
 supabase = "3.5.0"
 sqldelight = "2.3.2"
 kotlinx-coroutines = "1.10.2"
@@ -28,10 +26,10 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
-androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
-androidx-compose-ui = { module = "androidx.compose.ui:ui" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+# No androidx compose-bom / ui / material3 entries here on purpose: Compose
+# Multiplatform publishes to the same androidx.compose.* coordinates on Android,
+# so declaring the BOM alongside :shared puts two pinned versions of material3
+# on one classpath. See androidApp/build.gradle.kts.
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }

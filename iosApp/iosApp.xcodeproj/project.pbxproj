@@ -285,6 +285,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lsqlite3",
 					"-framework",
 					shared,
 					"-lsqlite3",
@@ -315,6 +316,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lsqlite3",
 					"-framework",
 					shared,
 					"-lsqlite3",

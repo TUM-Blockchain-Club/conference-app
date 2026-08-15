@@ -48,6 +48,7 @@ kotlin {
         namespace = "com.conference.asmara"
         compileSdk = 36
         minSdk = 26
+        androidResources.enable = true
         withHostTest {}
     }
 
@@ -116,6 +117,15 @@ kotlin {
             implementation(libs.sqldelight.native.driver)
         }
     }
+}
+
+// The generated `Res` class package is pinned explicitly. Its derived default is
+// long and has changed shape between Compose Multiplatform releases, so pinning
+// keeps the `Res` imports in ui/theme/Type.kt from churning on every upgrade.
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.conference.asmara.resources"
+    generateResClass = auto
 }
 
 sqldelight {

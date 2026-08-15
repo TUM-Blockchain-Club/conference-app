@@ -130,7 +130,7 @@ class ScheduleScreenModel(
         mutableState.update {
             it.copy(
                 banner = null,
-                errorMessage = "Couldn't load the schedule. Check your connection and try again.",
+                errorMessage = "Check your connection and try again.",
                 lastSyncedLabel = lastSynced?.syncedAtLabel(zone),
             )
         }

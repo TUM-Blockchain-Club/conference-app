@@ -8,7 +8,6 @@ import com.conference.asmara.domain.model.Speaker
 import com.conference.asmara.domain.model.SpeakerRole
 import com.conference.asmara.domain.model.Track
 import com.conference.asmara.ui.common.ConferenceTimeZone
-import com.conference.asmara.ui.theme.toTrackColorOrNull
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlin.test.Test
@@ -216,27 +215,8 @@ class ScheduleFilteringTest {
         assertEquals(listOf("Platform", "Security"), events.availableTracks().map { it.name })
     }
 
-    @Test
-    fun trackColorParsingNeverThrowsOnBadDatabaseContent() {
-        assertNull(null.toTrackColorOrNull())
-        assertNull("".toTrackColorOrNull())
-        assertNull("   ".toTrackColorOrNull())
-        assertNull("#GGGGGG".toTrackColorOrNull())
-        assertNull("#12345".toTrackColorOrNull())
-        assertNull("rebeccapurple".toTrackColorOrNull())
-    }
-
-    @Test
-    fun trackColorParsingAcceptsSixAndEightDigitHexWithOrWithoutHash() {
-        val opaque = "#4F46E5".toTrackColorOrNull()
-        assertEquals(opaque, "4F46E5".toTrackColorOrNull())
-        assertEquals(opaque, "FF4F46E5".toTrackColorOrNull())
-        assertEquals(opaque, " #4f46e5 ".toTrackColorOrNull())
-
-        val translucent = "804F46E5".toTrackColorOrNull()
-        assertTrue(translucent != null)
-        assertFalse(translucent == opaque)
-    }
+    // Track colour parsing lives in the design system now; TrackColorTest
+    // covers it, including the shorthand and uplift cases this never did.
 
     @Test
     fun upcomingOnlyCombinesWithTrackAndQuery() {

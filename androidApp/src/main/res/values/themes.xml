@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar" />
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+      The window theme that is live *before* Compose draws.
+
+      Previously this was Theme.AppCompat.DayNight.NoActionBar, which does two
+      unhelpful things on a dark-only app:
+
+        1. DayNight follows the system theme, so on a phone in light mode the
+           window background is white. That is a full-screen white flash at
+           every cold start, and the single most common regression in this area
+           — it is invisible unless you test with the system theme set to LIGHT.
+        2. It pulls in AppCompat, which MainActivity does not need: it extends
+           ComponentActivity, not AppCompatActivity.
+
+      android:Theme.Material.NoActionBar is the framework theme with no
+      day/night switching and no AppCompat dependency.
+    -->
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
+        <!-- Painted from the moment the window opens until Compose takes over. -->
+        <item name="android:windowBackground">@color/tbc_background</item>
+
+        <!-- Edge-to-edge: the app draws its own background behind both bars. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!--
+          Light *icons* on the status bar. The flag is named for the background,
+          so windowLightStatusBar=false means "the background is dark, use light
+          icons" — which is what #111111 needs.
+        -->
+        <item name="android:windowLightStatusBar">false</item>
+        <!--
+          API 27+. Declared here rather than in a values-v27 variant because an
+          unknown theme attribute is ignored by the platform, and false is
+          already the framework default on 26 — the split would duplicate the
+          whole style to say nothing new. tools:targetApi tells lint that.
+        -->
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+    </style>
 </resources>
