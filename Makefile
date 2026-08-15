@@ -1,4 +1,5 @@
-.PHONY: android-run ios-run stop-android stop-ios build clean seed seed-venue help
+.PHONY: android-run ios-run stop-android stop-ios build clean seed seed-venue help \
+        format format-swift lint lint-swift test test-ios build-android build-ios check ci
 
 # ANDROID_HOME is not exported by every shell profile, so fall back to the
 # location Android Studio installs into. Overridable: `make ADB=/path/to/adb`.
@@ -35,6 +36,45 @@ build: ## Full compilation check
 
 clean: ## Clean all build outputs
 	./gradlew clean
+
+# ---------------------------------------------------------------------------
+# Quality checks. `check` is the any-host set, `ci` adds everything that needs
+# a Mac; together they are what .github/workflows/ci.yml runs on every PR.
+#
+# CI only ever *checks* — it never formats and never auto-commits. Applying is
+# yours: run `format` (and `format-swift`) before you push.
+#
+# Kotlin formatting is ratcheted to origin/main: only files that differ from it
+# are checked or rewritten, so untouched legacy formatting is never in scope.
+# ---------------------------------------------------------------------------
+
+format: ## Apply Kotlin formatting (ktlint via Spotless) to files changed vs origin/main
+	./gradlew spotlessApply
+
+format-swift: ## Apply Swift formatting to iosApp/ (macOS — uses Xcode's bundled swift-format)
+	xcrun swift-format format --in-place --recursive iosApp
+
+lint: ## Check Kotlin formatting without changing anything
+	./gradlew spotlessCheck
+
+lint-swift: ## Check Swift formatting without changing anything (macOS)
+	xcrun swift-format lint --strict --recursive iosApp
+
+test: ## Run the shared test suite on the JVM
+	./gradlew :shared:testAndroidHostTest
+
+test-ios: ## Run the shared test suite on the iOS simulator target (macOS)
+	./gradlew :shared:iosSimulatorArm64Test
+
+build-android: ## Assemble the debug Android APK
+	./gradlew :androidApp:assembleDebug
+
+build-ios: ## Link the shared framework for simulator and device (macOS)
+	./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 :shared:linkDebugFrameworkIosArm64
+
+check: lint test build-android ## Lint + test + build Android (runs on any host)
+
+ci: check lint-swift test-ios build-ios ## Everything CI runs, including the iOS half (macOS)
 
 seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 	cd scripts && npm install && npm run seed
