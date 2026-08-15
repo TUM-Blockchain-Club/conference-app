@@ -5,9 +5,11 @@
     { "slug": "ai-x-crypto", "name": "AI x Crypto", "description": "Intersections of AI and blockchain", "color": "#059669", "sort_order": 3 }
   ],
   "locations": [
-    { "slug": "main-stage", "name": "Main Stage", "floor": "Ground Floor", "capacity": 400 },
-    { "slug": "workshop-room-a", "name": "Workshop Room A", "floor": "1st Floor", "capacity": 60 },
-    { "slug": "workshop-room-b", "name": "Workshop Room B", "floor": "1st Floor", "capacity": 60 }
+    { "slug": "talk-room-1", "name": "Talk Room 1 · Konferenz 9", "floor": "1st Floor", "capacity": 40 },
+    { "slug": "talk-room-2", "name": "Talk Room 2 · Konferenz 10", "floor": "1st Floor", "capacity": 40 },
+    { "slug": "talk-room-3", "name": "Talk Room 3 · SPRESS", "floor": "Ground Floor", "capacity": 65 },
+    { "slug": "talk-room-4", "name": "Talk Room 4 · PS5 Gaming Lounge", "floor": "Ground Floor", "capacity": 100 },
+    { "slug": "dining-area", "name": "Dining Area · GERN", "floor": "Ground Floor", "capacity": 440 }
   ],
   "speakers": [
     { "slug": "jane-doe", "name": "Jane Doe", "title": "Researcher", "company": "TUM", "bio": "DeFi researcher focused on protocol design.", "links": { "x": "https://x.com/janedoe" } },
@@ -25,7 +27,7 @@
       "end_time": "2026-09-01T09:45:00Z",
       "event_type": "keynote",
       "track": "defi",
-      "location": "main-stage",
+      "location": "talk-room-1",
       "is_published": true,
       "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
     },
@@ -37,7 +39,7 @@
       "end_time": "2026-09-01T10:45:00Z",
       "event_type": "talk",
       "track": "defi",
-      "location": "main-stage",
+      "location": "talk-room-1",
       "is_published": true,
       "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
     },
@@ -49,7 +51,7 @@
       "end_time": "2026-09-01T11:30:00Z",
       "event_type": "workshop",
       "track": "security",
-      "location": "workshop-room-a",
+      "location": "talk-room-3",
       "is_published": true,
       "speakers": [{ "slug": "alex-smith", "role": "speaker", "sort_order": 0 }]
     },
@@ -61,7 +63,7 @@
       "end_time": "2026-09-01T11:45:00Z",
       "event_type": "panel",
       "track": "defi",
-      "location": "main-stage",
+      "location": "talk-room-1",
       "is_published": true,
       "speakers": [
         { "slug": "maria-garcia", "role": "moderator", "sort_order": 0 },
@@ -75,7 +77,7 @@
       "start_time": "2026-09-01T12:00:00Z",
       "end_time": "2026-09-01T13:00:00Z",
       "event_type": "break",
-      "location": "main-stage",
+      "location": "dining-area",
       "is_published": true,
       "speakers": []
     },
@@ -87,7 +89,7 @@
       "end_time": "2026-09-02T10:15:00Z",
       "event_type": "talk",
       "track": "ai-x-crypto",
-      "location": "main-stage",
+      "location": "talk-room-2",
       "is_published": true,
       "speakers": [{ "slug": "tom-lee", "role": "speaker", "sort_order": 0 }]
     },
@@ -99,7 +101,7 @@
       "end_time": "2026-09-02T12:00:00Z",
       "event_type": "workshop",
       "track": "security",
-      "location": "workshop-room-b",
+      "location": "talk-room-4",
       "is_published": true,
       "speakers": [{ "slug": "sara-kim", "role": "speaker", "sort_order": 0 }]
     },
@@ -111,7 +113,7 @@
       "end_time": "2026-09-02T17:30:00Z",
       "event_type": "keynote",
       "track": "defi",
-      "location": "main-stage",
+      "location": "talk-room-1",
       "is_published": false,
       "speakers": [{ "slug": "jane-doe", "role": "speaker", "sort_order": 0 }]
     }

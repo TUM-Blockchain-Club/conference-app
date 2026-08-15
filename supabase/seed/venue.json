@@ -1,79 +1,720 @@
 {
   "venue": {
     "slug": "tbc-conference",
-    "name": "TBC Conference Venue"
+    "name": "überlab · House of Communication"
   },
   "levels": [
     {
       "slug": "ground",
-      "name": "Ground",
+      "name": "Ground Floor",
       "ordinal": 0,
-      "outline": {
-        "type": "Polygon",
-        "coordinates": [[[0, 0], [44, 0], [44, 32], [0, 32], [0, 0]]]
-      },
       "features": [
         {
-          "slug": "ground-foyer",
-          "name": "Foyer",
-          "category": "corridor",
+          "slug": "join-house",
+          "name": "JOIN",
+          "category": "other",
           "sort_order": 0,
+          "label_anchor": {"type": "Point", "coordinates": [28.0, 40.0]},
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[4, 24], [40, 24], [40, 28], [4, 28], [4, 24]]]
+            "coordinates": [
+              [
+                [0.0, 0.0],
+                [56.9, 0.0],
+                [56.9, 49.79],
+                [0.0, 49.79],
+                [0.0, 0.0]
+              ]
+            ]
           }
         },
         {
-          "slug": "main-stage",
-          "name": "Main Stage",
-          "category": "stage",
-          "location": "main-stage",
+          "slug": "heart-house",
+          "name": "HEART",
+          "category": "other",
+          "sort_order": 1,
+          "label_anchor": {"type": "Point", "coordinates": [94.5, 4.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [69.79, 0.0],
+                [90.7, 0.0],
+                [90.7, 3.9],
+                [98.7, 3.9],
+                [98.7, 0.0],
+                [119.27, 0.0],
+                [119.27, 49.79],
+                [69.79, 49.79],
+                [69.79, 0.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "lab-house",
+          "name": "LAB",
+          "category": "other",
+          "sort_order": 2,
+          "label_anchor": {"type": "Point", "coordinates": [161.0, 42.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [132.71, 0.55],
+                [189.6, 0.55],
+                [189.6, 49.79],
+                [132.71, 49.79],
+                [132.71, 0.55]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "join-lounge",
+          "name": "Join Lounge",
+          "category": "booth",
           "sort_order": 10,
+          "label_anchor": {"type": "Point", "coordinates": [28.0, 25.0]},
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[4, 4], [30, 4], [30, 22], [4, 22], [4, 4]]]
+            "coordinates": [
+              [
+                [24.65, 0.7],
+                [38.4, 0.75],
+                [38.35, 5.3],
+                [37.1, 5.55],
+                [37.15, 5.85],
+                [37.25, 5.95],
+                [37.35, 6.15],
+                [37.5, 6.2],
+                [37.6, 6.3],
+                [38.05, 6.35],
+                [38.35, 17.0],
+                [38.8, 17.0],
+                [39.2, 17.45],
+                [39.65, 17.4],
+                [39.7, 17.3],
+                [39.8, 17.2],
+                [39.9, 17.15],
+                [40.05, 17.2],
+                [40.1, 17.35],
+                [40.45, 17.4],
+                [40.75, 17.5],
+                [40.95, 17.5],
+                [40.95, 17.0],
+                [42.6, 16.75],
+                [42.6, 16.85],
+                [47.65, 16.8],
+                [47.65, 16.75],
+                [49.25, 16.75],
+                [49.3, 21.85],
+                [49.25, 21.85],
+                [49.3, 25.7],
+                [49.25, 25.7],
+                [49.25, 29.0],
+                [50.05, 29.25],
+                [50.0, 29.45],
+                [49.9, 29.5],
+                [49.85, 29.6],
+                [49.5, 29.65],
+                [49.25, 33.75],
+                [14.6, 33.75],
+                [9.55, 32.8],
+                [9.55, 33.75],
+                [7.6, 33.75],
+                [7.65, 28.95],
+                [7.7, 28.95],
+                [7.7, 28.45],
+                [9.0, 28.2],
+                [8.95, 27.9],
+                [8.85, 27.8],
+                [8.75, 27.6],
+                [8.65, 27.55],
+                [8.6, 27.45],
+                [8.35, 27.35],
+                [8.25, 27.25],
+                [7.7, 27.2],
+                [7.7, 23.55],
+                [8.95, 23.25],
+                [8.9, 22.95],
+                [8.75, 22.9],
+                [8.7, 22.7],
+                [8.55, 22.65],
+                [8.5, 22.55],
+                [8.25, 22.5],
+                [8.05, 22.35],
+                [7.7, 22.35],
+                [7.6, 15.95],
+                [16.75, 16.0],
+                [16.8, 16.35],
+                [16.9, 16.5],
+                [17.0, 16.75],
+                [17.1, 16.8],
+                [17.15, 16.95],
+                [17.35, 17.0],
+                [17.5, 17.1],
+                [17.9, 17.15],
+                [17.9, 16.0],
+                [20.75, 15.3],
+                [24.65, 15.3],
+                [24.65, 0.7]
+              ]
+            ]
           }
         },
         {
-          "slug": "ground-catering",
-          "name": "Catering",
+          "slug": "workcafe",
+          "name": "Workcafé",
           "category": "food",
-          "sort_order": 20,
+          "sort_order": 11,
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[32, 4], [40, 4], [40, 14], [32, 14], [32, 4]]]
+            "coordinates": [
+              [
+                [24.65, 0.7],
+                [38.35, 0.7],
+                [38.35, 15.95],
+                [24.65, 15.95],
+                [24.65, 0.7]
+              ]
+            ]
           }
         },
         {
-          "slug": "ground-restrooms",
-          "name": "Restrooms",
-          "category": "restroom",
+          "slug": "join-1",
+          "name": "Join 1",
+          "category": "room",
+          "sort_order": 12,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [0.75, 0.7],
+                [4.75, 0.7],
+                [4.65, 3.75],
+                [4.4, 3.85],
+                [4.35, 3.95],
+                [4.15, 4.0],
+                [4.1, 4.15],
+                [4.0, 4.2],
+                [3.95, 4.35],
+                [3.8, 4.6],
+                [3.8, 4.7],
+                [0.75, 4.85],
+                [0.75, 0.7]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "join-2",
+          "name": "Join 2",
+          "category": "room",
+          "sort_order": 13,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [12.6, 0.7],
+                [12.6, 4.85],
+                [10.9, 4.7],
+                [10.85, 4.4],
+                [10.7, 4.35],
+                [10.65, 4.2],
+                [10.55, 4.15],
+                [10.45, 4.0],
+                [10.15, 3.95],
+                [9.95, 0.75],
+                [12.6, 0.7]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "join-3",
+          "name": "Join 3",
+          "category": "room",
+          "sort_order": 14,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [9.95, 4.95],
+                [12.6, 4.95],
+                [12.6, 7.95],
+                [9.95, 7.95],
+                [10.25, 5.8],
+                [10.55, 5.7],
+                [10.65, 5.6],
+                [10.8, 5.5],
+                [10.85, 5.15],
+                [9.95, 5.0],
+                [9.95, 4.95]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-2",
+          "name": "Konferenz 2",
+          "category": "room",
+          "sort_order": 15,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [0.75, 4.95],
+                [4.75, 4.95],
+                [4.7, 11.75],
+                [4.35, 11.8],
+                [4.3, 11.9],
+                [4.1, 11.95],
+                [4.05, 12.15],
+                [3.95, 12.2],
+                [3.9, 12.55],
+                [4.75, 12.7],
+                [4.75, 12.8],
+                [0.75, 12.8],
+                [0.75, 4.95]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-1",
+          "name": "Konferenz 1",
+          "category": "room",
+          "sort_order": 16,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [0.75, 12.9],
+                [3.8, 13.1],
+                [3.9, 13.45],
+                [4.0, 13.55],
+                [4.05, 13.75],
+                [4.25, 13.8],
+                [4.35, 13.9],
+                [4.75, 14.0],
+                [4.75, 20.65],
+                [0.75, 20.65],
+                [0.75, 12.9]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "flex",
+          "name": "Flex",
+          "category": "room",
+          "sort_order": 17,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [49.35, 28.9],
+                [56.25, 28.9],
+                [56.25, 34.0],
+                [49.35, 34.0],
+                [49.7, 29.75],
+                [49.95, 29.65],
+                [50.0, 29.55],
+                [50.15, 29.45],
+                [50.2, 29.2],
+                [49.35, 28.95],
+                [49.35, 28.9]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "gern",
+          "name": "GERN",
+          "category": "food",
+          "sort_order": 18,
+          "location": "dining-area",
+          "label_anchor": {"type": "Point", "coordinates": [84.0, 45.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [89.15, 7.65],
+                [90.6, 7.6],
+                [98.85, 7.95],
+                [98.9, 8.15],
+                [99.0, 8.3],
+                [99.05, 8.4],
+                [99.25, 8.45],
+                [99.35, 8.6],
+                [99.95, 8.65],
+                [99.95, 7.6],
+                [105.6, 7.65],
+                [105.45, 10.95],
+                [105.05, 11.0],
+                [104.95, 11.1],
+                [104.8, 11.2],
+                [104.75, 11.35],
+                [104.6, 11.45],
+                [104.55, 11.95],
+                [105.6, 11.95],
+                [105.7, 24.65],
+                [105.7, 24.8],
+                [104.5, 25.1],
+                [104.55, 25.5],
+                [104.7, 25.65],
+                [104.75, 25.8],
+                [104.85, 25.85],
+                [104.95, 26.0],
+                [105.2, 26.05],
+                [105.4, 26.15],
+                [105.7, 26.2],
+                [105.75, 26.35],
+                [105.7, 26.35],
+                [105.7, 32.35],
+                [100.7, 32.4],
+                [100.35, 43.0],
+                [100.45, 43.0],
+                [100.45, 40.4],
+                [109.95, 40.4],
+                [118.8, 39.6],
+                [118.8, 49.1],
+                [70.15, 49.1],
+                [70.2, 17.25],
+                [74.3, 17.3],
+                [88.35, 17.25],
+                [88.65, 9.1],
+                [88.55, 7.65],
+                [89.15, 7.65]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "spress",
+          "name": "Talk Room 3 · SPRESS",
+          "category": "stage",
+          "sort_order": 19,
+          "location": "talk-room-3",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [70.3, 17.4],
+                [87.1, 17.4],
+                [87.1, 26.3],
+                [70.3, 26.3],
+                [70.3, 17.4]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "ps5-gaming-lounge",
+          "name": "Talk Room 4 · PS5 Gaming Lounge",
+          "category": "stage",
+          "sort_order": 20,
+          "location": "talk-room-4",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [88.65, 7.65],
+                [105.65, 7.65],
+                [105.65, 17.25],
+                [88.65, 17.25],
+                [88.65, 7.65]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "holztafel-gern",
+          "name": "Holztafel GERN",
+          "category": "food",
           "sort_order": 21,
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[32, 16], [40, 16], [40, 22], [32, 22], [32, 16]]]
+            "coordinates": [
+              [
+                [93.95, 19.15],
+                [95.3, 19.15],
+                [95.3, 43.2],
+                [93.9, 43.05],
+                [93.95, 19.15]
+              ]
+            ]
           }
         },
         {
-          "slug": "ground-entrance",
-          "name": "Main Entrance",
-          "category": "entrance",
-          "sort_order": 30,
-          "geometry": { "type": "Point", "coordinates": [22, 30] }
+          "slug": "gastro-ausgabe",
+          "name": "Gastro-Ausgabe",
+          "category": "food",
+          "sort_order": 22,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [105.8, 23.35],
+                [118.8, 23.35],
+                [118.8, 28.25],
+                [105.8, 28.25],
+                [105.5, 26.05],
+                [105.15, 26.0],
+                [105.05, 25.85],
+                [104.9, 25.8],
+                [104.85, 25.7],
+                [104.75, 25.65],
+                [104.7, 25.4],
+                [104.55, 25.15],
+                [105.8, 24.85],
+                [105.8, 23.35]
+              ]
+            ]
+          }
         },
         {
-          "slug": "ground-stairs",
-          "name": "Stairs",
+          "slug": "biergarten",
+          "name": "Biergarten",
+          "category": "food",
+          "sort_order": 23,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [88.0, 50.5],
+                [102.0, 50.5],
+                [102.0, 60.5],
+                [88.0, 60.5],
+                [88.0, 50.5]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "lab-lounge",
+          "name": "Lab Lounge",
+          "category": "booth",
+          "sort_order": 24,
+          "label_anchor": {"type": "Point", "coordinates": [165.0, 25.5]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [151.2, 16.3],
+                [152.4, 16.3],
+                [152.4, 17.6],
+                [170.15, 17.25],
+                [170.25, 16.3],
+                [170.6, 16.35],
+                [170.7, 16.45],
+                [170.85, 16.55],
+                [170.9, 16.7],
+                [171.05, 16.8],
+                [171.1, 17.25],
+                [171.35, 16.9],
+                [171.4, 16.6],
+                [171.55, 16.45],
+                [171.65, 16.35],
+                [171.9, 16.3],
+                [172.1, 16.35],
+                [172.15, 16.45],
+                [172.1, 17.25],
+                [182.0, 17.6],
+                [181.95, 21.6],
+                [180.65, 21.65],
+                [180.7, 22.05],
+                [180.85, 22.2],
+                [180.9, 22.35],
+                [181.0, 22.45],
+                [181.05, 22.55],
+                [181.3, 22.6],
+                [181.4, 22.7],
+                [181.9, 22.8],
+                [181.95, 26.4],
+                [180.7, 26.45],
+                [180.75, 26.9],
+                [180.9, 27.05],
+                [181.0, 27.25],
+                [181.3, 27.4],
+                [181.4, 27.5],
+                [181.9, 27.55],
+                [181.95, 29.2],
+                [182.0, 29.2],
+                [182.0, 34.05],
+                [171.7, 34.0],
+                [171.7, 34.05],
+                [151.65, 34.0],
+                [151.45, 33.05],
+                [140.4, 33.1],
+                [140.35, 25.2],
+                [139.55, 24.95],
+                [139.6, 24.6],
+                [139.7, 24.5],
+                [139.75, 24.35],
+                [139.95, 24.3],
+                [140.05, 24.2],
+                [140.5, 24.15],
+                [140.5, 21.15],
+                [139.6, 20.85],
+                [139.65, 20.6],
+                [139.75, 20.55],
+                [139.85, 20.4],
+                [140.05, 20.35],
+                [140.25, 20.25],
+                [140.5, 20.25],
+                [140.65, 15.95],
+                [142.0, 16.0],
+                [142.05, 16.3],
+                [150.05, 16.25],
+                [150.1, 16.0],
+                [150.2, 16.05],
+                [150.25, 16.25],
+                [150.45, 16.1],
+                [150.5, 15.8],
+                [150.6, 15.7],
+                [150.7, 15.6],
+                [150.9, 15.5],
+                [151.2, 16.3]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "worklab-1",
+          "name": "Worklab 1",
+          "category": "room",
+          "sort_order": 25,
+          "label_anchor": {"type": "Point", "coordinates": [168.0, 3.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [149.1, 1.0],
+                [161.35, 1.05],
+                [161.35, 1.0],
+                [188.95, 1.0],
+                [188.95, 5.0],
+                [175.15, 5.0],
+                [175.1, 17.2],
+                [172.2, 17.2],
+                [172.05, 16.15],
+                [171.65, 16.25],
+                [171.5, 16.35],
+                [171.4, 16.4],
+                [171.35, 16.6],
+                [171.2, 16.75],
+                [171.15, 16.8],
+                [171.05, 16.7],
+                [171.0, 16.55],
+                [170.85, 16.45],
+                [170.8, 16.35],
+                [170.55, 16.3],
+                [170.45, 16.15],
+                [170.1, 16.1],
+                [170.05, 16.45],
+                [170.0, 17.2],
+                [161.35, 17.2],
+                [161.25, 12.8],
+                [153.0, 12.85],
+                [153.0, 16.15],
+                [151.35, 16.15],
+                [151.0, 15.4],
+                [150.75, 15.45],
+                [150.6, 15.6],
+                [150.5, 15.65],
+                [150.45, 15.8],
+                [150.35, 16.0],
+                [150.25, 15.95],
+                [150.05, 15.9],
+                [149.9, 16.15],
+                [149.1, 16.15],
+                [149.25, 15.25],
+                [149.75, 15.15],
+                [149.85, 15.05],
+                [150.05, 15.0],
+                [150.1, 14.8],
+                [150.2, 14.7],
+                [150.25, 14.25],
+                [149.1, 14.25],
+                [149.05, 8.35],
+                [149.1, 8.35],
+                [149.1, 1.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "worklab-2",
+          "name": "Worklab 2",
+          "category": "room",
+          "sort_order": 26,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [149.1, 1.0],
+                [161.25, 1.0],
+                [161.25, 9.9],
+                [149.1, 9.9],
+                [149.1, 1.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "studio",
+          "name": "Studio",
+          "category": "room",
+          "sort_order": 27,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [133.4, 16.0],
+                [140.35, 16.0],
+                [140.3, 20.2],
+                [139.95, 20.25],
+                [139.85, 20.35],
+                [139.65, 20.4],
+                [139.6, 20.6],
+                [139.45, 20.7],
+                [139.4, 21.25],
+                [140.35, 21.25],
+                [140.2, 24.15],
+                [139.9, 24.2],
+                [139.75, 24.3],
+                [139.65, 24.35],
+                [139.6, 24.5],
+                [139.45, 24.6],
+                [139.4, 25.1],
+                [133.4, 25.1],
+                [133.4, 16.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "ground-stairs-join",
+          "name": "Stairs · JOIN",
+          "category": "stairs",
+          "sort_order": 30,
+          "geometry": {"type": "Point", "coordinates": [34.2, 24.3]}
+        },
+        {
+          "slug": "ground-stairs-heart",
+          "name": "Stairs · HEART",
           "category": "stairs",
           "sort_order": 31,
-          "geometry": { "type": "Point", "coordinates": [31, 26] }
+          "geometry": {"type": "Point", "coordinates": [89.7, 25.7]}
         },
         {
-          "slug": "ground-elevator",
-          "name": "Lift",
-          "category": "elevator",
+          "slug": "ground-stairs-lab",
+          "name": "Stairs · LAB",
+          "category": "stairs",
           "sort_order": 32,
-          "geometry": { "type": "Point", "coordinates": [35, 26] }
+          "geometry": {"type": "Point", "coordinates": [150.8, 26.2]}
         }
       ]
     },
@@ -81,77 +722,476 @@
       "slug": "first",
       "name": "1st Floor",
       "ordinal": 1,
-      "outline": {
-        "type": "Polygon",
-        "coordinates": [[[0, 0], [44, 0], [44, 32], [0, 32], [0, 0]]]
-      },
       "features": [
         {
-          "slug": "first-corridor",
-          "name": "Corridor",
-          "category": "corridor",
+          "slug": "join-house",
+          "name": "JOIN",
+          "category": "other",
           "sort_order": 0,
+          "label_anchor": {"type": "Point", "coordinates": [28.0, 10.0]},
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[4, 21], [40, 21], [40, 25], [4, 25], [4, 21]]]
+            "coordinates": [
+              [
+                [0.0, 0.0],
+                [56.9, 0.0],
+                [56.9, 49.79],
+                [0.0, 49.79],
+                [0.0, 0.0]
+              ]
+            ]
           }
         },
         {
-          "slug": "workshop-room-a",
-          "name": "Workshop Room A",
+          "slug": "heart-house",
+          "name": "HEART",
+          "category": "other",
+          "sort_order": 1,
+          "label_anchor": {"type": "Point", "coordinates": [94.5, 4.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [69.79, 0.0],
+                [90.7, 0.0],
+                [90.7, 7.2],
+                [98.7, 7.2],
+                [98.7, 0.0],
+                [119.27, 0.0],
+                [119.27, 49.79],
+                [69.79, 49.79],
+                [69.79, 0.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "lab-house",
+          "name": "LAB",
+          "category": "other",
+          "sort_order": 2,
+          "label_anchor": {"type": "Point", "coordinates": [161.0, 10.0]},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [132.71, 0.55],
+                [189.6, 0.55],
+                [189.6, 49.79],
+                [132.71, 49.79],
+                [132.71, 0.55]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "bridge-join-heart",
+          "name": "Bridge JOIN–HEART",
+          "category": "corridor",
+          "sort_order": 3,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [56.9, 21.76],
+                [69.79, 21.76],
+                [69.79, 28.27],
+                [56.9, 28.27],
+                [56.9, 21.76]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "bridge-heart-lab",
+          "name": "Bridge HEART–LAB",
+          "category": "corridor",
+          "sort_order": 4,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [119.27, 21.58],
+                [132.71, 21.58],
+                [132.71, 28.15],
+                [119.27, 28.15],
+                [119.27, 21.58]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "ticketing",
+          "name": "Ticketing",
+          "category": "entrance",
+          "sort_order": 5,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [52.9, 21.8],
+                [56.9, 21.8],
+                [56.9, 28.3],
+                [52.9, 28.3],
+                [52.9, 21.8]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-3",
+          "name": "Konferenz 3",
           "category": "room",
-          "location": "workshop-room-a",
           "sort_order": 10,
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[4, 4], [20, 4], [20, 19], [4, 19], [4, 4]]]
+            "coordinates": [
+              [
+                [51.05, 29.05],
+                [56.6, 29.05],
+                [56.6, 37.35],
+                [51.05, 37.35],
+                [51.3, 30.2],
+                [51.6, 30.15],
+                [51.75, 30.05],
+                [51.85, 29.95],
+                [51.9, 29.85],
+                [52.05, 29.8],
+                [52.1, 29.55],
+                [51.05, 29.25],
+                [51.05, 29.05]
+              ]
+            ]
           }
         },
         {
-          "slug": "workshop-room-b",
-          "name": "Workshop Room B",
+          "slug": "konferenz-4",
+          "name": "Konferenz 4",
           "category": "room",
-          "location": "workshop-room-b",
           "sort_order": 11,
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[24, 4], [40, 4], [40, 19], [24, 19], [24, 4]]]
+            "coordinates": [
+              [
+                [52.15, 37.45],
+                [56.6, 37.45],
+                [56.6, 45.6],
+                [51.05, 45.6],
+                [51.35, 38.5],
+                [51.65, 38.4],
+                [51.8, 38.25],
+                [52.0, 38.1],
+                [52.05, 37.85],
+                [52.15, 37.7],
+                [52.15, 37.45]
+              ]
+            ]
           }
         },
         {
-          "slug": "first-restrooms",
-          "name": "Restrooms",
-          "category": "restroom",
+          "slug": "led-wall-a",
+          "name": "LED Wall A",
+          "category": "stage",
+          "sort_order": 12,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [50.9, 22.0],
+                [56.5, 22.0],
+                [56.5, 22.5],
+                [50.9, 22.5],
+                [50.9, 22.0]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "led-wall-b",
+          "name": "LED Wall B",
+          "category": "stage",
+          "sort_order": 13,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [50.9, 27.8],
+                [56.5, 27.8],
+                [56.5, 28.3],
+                [50.9, 28.3],
+                [50.9, 27.8]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-5",
+          "name": "Konferenz 5",
+          "category": "room",
+          "sort_order": 14,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [70.05, 37.45],
+                [75.1, 37.5],
+                [75.15, 37.95],
+                [75.25, 38.05],
+                [75.3, 38.2],
+                [75.45, 38.25],
+                [75.5, 38.35],
+                [75.75, 38.4],
+                [76.0, 38.55],
+                [76.25, 38.55],
+                [76.25, 41.45],
+                [70.05, 41.45],
+                [70.05, 37.45]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-6",
+          "name": "Konferenz 6",
+          "category": "room",
+          "sort_order": 15,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [70.05, 28.9],
+                [75.25, 29.2],
+                [75.3, 29.4],
+                [75.45, 29.6],
+                [75.5, 29.85],
+                [75.6, 29.9],
+                [75.75, 30.05],
+                [76.0, 30.1],
+                [76.15, 37.35],
+                [70.05, 37.35],
+                [70.05, 28.9]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-8",
+          "name": "Konferenz 8",
+          "category": "room",
+          "sort_order": 16,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [78.3, 45.48],
+                [82.37, 45.48],
+                [82.37, 49.55],
+                [78.3, 49.55],
+                [78.3, 45.48]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-7",
+          "name": "Konferenz 7",
+          "category": "room",
+          "sort_order": 17,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [82.43, 45.48],
+                [86.44, 45.48],
+                [86.44, 49.55],
+                [82.43, 49.55],
+                [82.43, 45.48]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-9",
+          "name": "Talk Room 1 · Konferenz 9",
+          "category": "stage",
+          "sort_order": 18,
+          "location": "talk-room-1",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [89.06, 35.38],
+                [100.43, 35.38],
+                [100.43, 42.13],
+                [89.06, 42.13],
+                [89.06, 35.38]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "konferenz-10",
+          "name": "Talk Room 2 · Konferenz 10",
+          "category": "stage",
+          "sort_order": 19,
+          "location": "talk-room-2",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [89.06, 42.13],
+                [100.43, 42.13],
+                [100.43, 49.55],
+                [89.06, 49.55],
+                [89.06, 42.13]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "led-wall-c",
+          "name": "LED Wall C",
+          "category": "stage",
           "sort_order": 20,
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[4, 27], [16, 27], [16, 31], [4, 31], [4, 27]]]
+            "coordinates": [
+              [
+                [89.17, 34.9],
+                [99.08, 34.9],
+                [99.08, 35.4],
+                [89.17, 35.4],
+                [89.17, 34.9]
+              ]
+            ]
           }
         },
         {
-          "slug": "first-sponsor-booths",
-          "name": "Sponsor Booths",
-          "category": "booth",
+          "slug": "konferenz-11",
+          "name": "Konferenz 11",
+          "category": "room",
           "sort_order": 21,
-          "label_anchor": { "type": "Point", "coordinates": [28, 29] },
           "geometry": {
             "type": "Polygon",
-            "coordinates": [[[20, 27], [40, 27], [40, 31], [20, 31], [20, 27]]]
+            "coordinates": [
+              [
+                [115.5, 33.26],
+                [119.09, 33.26],
+                [119.09, 37.33],
+                [115.5, 37.33],
+                [115.5, 33.26]
+              ]
+            ]
           }
         },
         {
-          "slug": "first-stairs",
-          "name": "Stairs",
-          "category": "stairs",
-          "sort_order": 30,
-          "geometry": { "type": "Point", "coordinates": [31, 23] }
+          "slug": "konferenz-12",
+          "name": "Konferenz 12",
+          "category": "room",
+          "sort_order": 22,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [115.5, 37.39],
+                [119.09, 37.39],
+                [119.09, 41.46],
+                [115.5, 41.46],
+                [115.5, 37.39]
+              ]
+            ]
+          }
         },
         {
-          "slug": "first-elevator",
-          "name": "Lift",
-          "category": "elevator",
+          "slug": "konferenz-14",
+          "name": "Konferenz 14",
+          "category": "room",
+          "sort_order": 23,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [113.35, 12.5],
+                [119.1, 12.5],
+                [119.1, 20.85],
+                [114.4, 20.75],
+                [114.35, 20.35],
+                [114.25, 20.3],
+                [114.15, 20.1],
+                [114.0, 20.05],
+                [113.85, 19.95],
+                [113.35, 19.9],
+                [113.35, 12.5]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "opie-green",
+          "name": "Opie Green",
+          "category": "room",
+          "sort_order": 24,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [115.2, 45.8],
+                [115.2, 49.6],
+                [102.7, 49.6],
+                [102.7, 45.85],
+                [115.2, 45.8]
+              ]
+            ]
+          }
+        },
+        {
+          "slug": "booth-1",
+          "name": "Booth 1",
+          "category": "booth",
+          "sort_order": 25,
+          "geometry": {"type": "Point", "coordinates": [68.13, 26.51]}
+        },
+        {
+          "slug": "booth-2",
+          "name": "Booth 2",
+          "category": "booth",
+          "sort_order": 26,
+          "geometry": {"type": "Point", "coordinates": [72.42, 20.92]}
+        },
+        {
+          "slug": "booth-3",
+          "name": "Booth 3",
+          "category": "booth",
+          "sort_order": 27,
+          "geometry": {"type": "Point", "coordinates": [78.2, 20.92]}
+        },
+        {
+          "slug": "booth-4",
+          "name": "Booth 4",
+          "category": "booth",
+          "sort_order": 28,
+          "geometry": {"type": "Point", "coordinates": [84.0, 20.92]}
+        },
+        {
+          "slug": "first-stairs-join",
+          "name": "Stairs · JOIN",
+          "category": "stairs",
+          "sort_order": 30,
+          "geometry": {"type": "Point", "coordinates": [34.2, 24.3]}
+        },
+        {
+          "slug": "first-stairs-heart",
+          "name": "Stairs · HEART",
+          "category": "stairs",
           "sort_order": 31,
-          "geometry": { "type": "Point", "coordinates": [35, 23] }
+          "geometry": {"type": "Point", "coordinates": [89.7, 25.7]}
+        },
+        {
+          "slug": "first-stairs-lab",
+          "name": "Stairs · LAB",
+          "category": "stairs",
+          "sort_order": 32,
+          "geometry": {"type": "Point", "coordinates": [150.8, 26.2]}
         }
       ]
     }
