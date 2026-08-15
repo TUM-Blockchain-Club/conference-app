@@ -418,6 +418,8 @@ this section is anatomy and provenance only.
 | `TbcBadge` | Outlined; accent, neutral, success, warning, danger | "Core Member", "IT & Development" |
 | `CountPill` | Muted text on `#242424`, pill | "7 departments", "132 total" |
 | `PillTabRow` | Scrollable pills; selected = solid blue + icon; edge fade | Dashboard nav |
+| `TbcFilterChip` / `FilterChipRow` | Same pill language, multi-select; selection = fill **and** check glyph **and** `Role.Checkbox` | Schedule filters |
+| `EmptyState` | Haloed glyph + headline + explanation + at most one action | Schedule with no results |
 | `FieldLabel` | Uppercase, 0.9sp tracking, muted, optional padlock | Profile form |
 | `TbcTextField` | Label above, opaque `#242424` container, 8dp | Profile form |
 | `StatTile` | Derived gradient + hairline + `*-400` icon + figure | Statistics tiles |
@@ -529,6 +531,14 @@ purpose:
 12. **Icons are Lucide-transcribed vectors**, not Material and not the `lucide`
     npm package.
 13. **Footer scrolls** rather than being pinned.
+14. **Filter chips carry a check glyph as well as a fill.** `PillTabRow` can
+    signal selection with fill alone because exactly one tab is always on and
+    position reinforces it; a multi-select row has neither guarantee, so
+    fill-only selection would be invisible without colour vision.
+15. **`CountPill` never wraps** (`softWrap = false`, ellipsised), and
+    `SectionHeader` weights its title so the title absorbs the shortfall. At a
+    1.8x font scale the unweighted `SpaceBetween` row squeezed the pill into a
+    column of single letters.
 
 ---
 

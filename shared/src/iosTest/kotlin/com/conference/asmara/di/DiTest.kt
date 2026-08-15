@@ -1,6 +1,7 @@
 package com.conference.asmara.di
 
 import com.conference.asmara.iosPlatformModule
+import com.conference.asmara.ui.detail.EventDetailScreenModel
 import org.koin.test.check.checkModules
 import kotlin.test.Test
 
@@ -8,7 +9,11 @@ import kotlin.test.Test
 class DiTest {
     @Test
     fun allModulesResolve() {
-        checkModules {
+        checkModules(
+            // EventDetailScreenModel is a parameterised factory, so the check
+            // needs an id to build one with.
+            parameters = { withParameter<EventDetailScreenModel> { "event-id" } },
+        ) {
             modules(iosPlatformModule(), appModule, dataModule)
         }
     }

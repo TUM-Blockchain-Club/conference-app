@@ -102,13 +102,21 @@ fun TbcTextField(
     }
 }
 
-/** A search field: the same construction, with a leading magnifier. */
+/**
+ * A search field: the same construction, with a leading magnifier.
+ *
+ * @param onClear when supplied, a clear button appears once there is something
+ *   to clear. It is an [TbcIconButton] rather than a bare [Icon] so it reaches
+ *   the 48dp touch target and announces itself — a tappable glyph wired
+ *   straight onto the trailing slot is neither.
+ */
 @Composable
 fun TbcSearchField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "Search…",
+    onClear: (() -> Unit)? = null,
 ) {
     val tokens = TbcTheme.tokens
     OutlinedTextField(
@@ -123,6 +131,17 @@ fun TbcSearchField(
                 contentDescription = null,
                 tint = tokens.textMuted,
             )
+        },
+        trailingIcon = if (onClear != null && value.isNotEmpty()) {
+            {
+                TbcIconButton(
+                    icon = TbcIcons.Close,
+                    contentDescription = "Clear search",
+                    onClick = onClear,
+                )
+            }
+        } else {
+            null
         },
         placeholder = {
             Text(

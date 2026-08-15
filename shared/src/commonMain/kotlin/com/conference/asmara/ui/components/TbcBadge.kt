@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.conference.asmara.ui.theme.TbcTheme
 
@@ -88,6 +89,11 @@ fun CountPill(
         text = text,
         style = MaterialTheme.typography.labelMedium,
         color = tokens.textMuted,
+        // A pill that wraps stops being a pill. Squeezed for width it should
+        // truncate on one line, not stack its letters vertically.
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
             .clip(tokens.pill)
             .background(tokens.surfaceMuted)

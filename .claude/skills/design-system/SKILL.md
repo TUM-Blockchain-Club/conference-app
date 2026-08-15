@@ -143,9 +143,11 @@ Sections separated by `x3l`, cards by `xxl`, list rows by `md`.
 | Status / category label | `TbcBadge(style = …)` |
 | Count next to a header | `CountPill` |
 | Legend / category marker | `ColorDot` |
-| Top-level navigation | `PillTabRow` |
+| Top-level navigation | `PillTabRow` (single-select) |
+| Narrowing a list | `TbcFilterChip` in a `FilterChipRow` (multi-select) |
 | Form input | `TbcTextField` |
 | Search | `TbcSearchField` |
+| Nothing to show | `EmptyState` — action only if the user can fix it |
 | Field label | `FieldLabel` (uppercases for you) |
 | Headline figure | `StatTile` / `StatTileGrid` |
 | Proportion comparison | `StatBarRow` |

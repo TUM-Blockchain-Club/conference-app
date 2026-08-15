@@ -137,8 +137,11 @@ private fun PillTabItem(
  * Drawn over the content with the canvas colour rather than as an overlay
  * gradient, so it stays opaque and cannot double-composite against the pill
  * beneath it.
+ *
+ * Shared with [FilterChipRow] — both scroll pills horizontally, and two
+ * implementations would drift.
  */
-private fun Modifier.edgeFade(
+internal fun Modifier.edgeFade(
     canvas: Color,
     fadeStart: Boolean,
     fadeEnd: Boolean,

@@ -38,9 +38,15 @@ fun SectionHeader(
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(spacing.md),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(spacing.xxs)) {
+        // Weighted, so the *title* absorbs the shortfall at large font sizes.
+        // Without this both children measure at their intrinsic width and the
+        // pill is the one that loses, wrapping into a column of single letters.
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(spacing.xxs),
+        ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,

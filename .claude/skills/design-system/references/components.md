@@ -165,6 +165,67 @@ are short, and selection is also encoded by fill, position and icon, so the
 
 ---
 
+## `TbcFilterChip` / `FilterChipRow`
+
+```kotlin
+TbcFilterChip(
+    label: String,
+    selected: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    leadingDot: Color? = null,     // usually trackColor(...)
+    icon: ImageVector? = null,
+)
+
+FilterChipRow { /* chips */ }
+```
+
+Multi-select, which is the whole reason it is not `PillTabRow`. Tabs answer
+"where am I" and exactly one is always on; filters answer "what have I narrowed
+to" and any number can be. A tab row that let two tabs light up would be a bug,
+so the two cannot share a component.
+
+Selection is carried by three signals — accent fill, a check glyph, and
+`Role.Checkbox` semantics. The tab row can lean on fill alone because position
+and the always-one-selected invariant back it up; a filter row has neither, so
+fill-only selection would be invisible to anyone who cannot separate blue from
+`#242424`.
+
+`leadingDot` is swapped out for the check while selected, so a chip barely
+changes width as it toggles and the row does not reflow under the thumb.
+
+`FilterChipRow` scrolls horizontally and shares `edgeFade` with `PillTabRow`. It
+scrolls rather than wraps because filters sit directly above the list they act
+on, and wrapping would push the first result off-screen as soon as a conference
+grew a fourth track.
+
+---
+
+## `EmptyState`
+
+```kotlin
+EmptyState(
+    title: String,
+    description: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,   // typically one TbcButton
+)
+```
+
+Fills its parent: a haloed glyph, a headline, an explanation, and at most one
+way out.
+
+Omit `action` when the user has nothing to act on. "No results for your filters"
+and "nothing published yet" look alike and are not alike — the first is theirs to
+fix and gets a **Clear filters** button, the second is not and gets none. A
+button that cannot help is worse than no button.
+
+Not a [`Banner`]: a banner explains content that is still on screen, this
+replaces it.
+
+---
+
 ## `FieldLabel` / `FieldHelperText`
 
 ```kotlin
@@ -202,7 +263,13 @@ TbcTextField(
     singleLine: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
 )
+
+TbcSearchField(value, onValueChange, modifier, placeholder, onClear: (() -> Unit)? = null)
 ```
+
+`TbcSearchField`'s `onClear` adds a trailing clear button once there is
+something to clear. It is a `TbcIconButton`, not a bare `Icon` wired to the
+trailing slot, so it reaches the 48dp target and announces itself.
 
 Two structural departures from M3:
 

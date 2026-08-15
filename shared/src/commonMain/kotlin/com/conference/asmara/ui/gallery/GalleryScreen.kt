@@ -36,7 +36,9 @@ import com.conference.asmara.ui.components.Banner
 import com.conference.asmara.ui.components.BannerStyle
 import com.conference.asmara.ui.components.ColorDot
 import com.conference.asmara.ui.components.CountPill
+import com.conference.asmara.ui.components.EmptyState
 import com.conference.asmara.ui.components.FieldLabel
+import com.conference.asmara.ui.components.FilterChipRow
 import com.conference.asmara.ui.components.PillTab
 import com.conference.asmara.ui.components.PillTabRow
 import com.conference.asmara.ui.components.ScreenFooter
@@ -51,6 +53,7 @@ import com.conference.asmara.ui.components.TbcButton
 import com.conference.asmara.ui.components.TbcButtonRow
 import com.conference.asmara.ui.components.TbcButtonStyle
 import com.conference.asmara.ui.components.TbcCard
+import com.conference.asmara.ui.components.TbcFilterChip
 import com.conference.asmara.ui.components.TbcScaffold
 import com.conference.asmara.ui.components.TbcSearchField
 import com.conference.asmara.ui.components.TbcTextField
@@ -110,10 +113,12 @@ class GalleryScreen : Screen {
                 ButtonSection()
                 BadgeSection()
                 TabSection()
+                FilterChipSection()
                 StatTileSection()
                 StatBarSection()
                 BannerSection()
                 FieldSection()
+                EmptyStateSection()
                 TrackColorSection()
 
                 Spacer(Modifier.height(spacing.lg))
@@ -356,6 +361,76 @@ private fun TabSection() {
         )
     }
 }
+
+/**
+ * Multi-select filters, next to the single-select tabs above so the difference
+ * is visible: several chips can be on at once, and each carries a check glyph
+ * as well as the fill so selection is not signalled by colour alone.
+ */
+@Composable
+private fun FilterChipSection() {
+    var tracks by remember { mutableStateOf(setOf("DeFi")) }
+    var upcoming by remember { mutableStateOf(false) }
+    val seeds = remember {
+        listOf("DeFi" to "#4F46E5", "Security" to "#DC2626", "AI x Crypto" to "#059669")
+    }
+
+    GallerySection(title = "Filter chips", subtitle = "Multi-select, unlike tabs") {
+        FilterChipRow {
+            seeds.forEachIndexed { index, (name, hex) ->
+                TbcFilterChip(
+                    label = name,
+                    selected = name in tracks,
+                    onToggle = { tracks = if (name in tracks) tracks - name else tracks + name },
+                    leadingDot = trackColor(hex, index),
+                )
+            }
+            TbcFilterChip(
+                label = "Upcoming",
+                selected = upcoming,
+                onToggle = { upcoming = !upcoming },
+                icon = TbcIcons.Clock,
+            )
+        }
+    }
+}
+
+/**
+ * The two empty states that are most often collapsed into one: "your filters
+ * matched nothing", which the user can fix, and "there is no data yet", which
+ * they cannot. Only the first gets an action.
+ */
+@Composable
+private fun EmptyStateSection() {
+    val spacing = TbcTheme.spacing
+    GallerySection(title = "Empty states", subtitle = "Only actionable ones get a button") {
+        TbcCard(Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(spacing.x3l)) {
+                EmptyState(
+                    title = "No matching sessions",
+                    description = "Nothing matches your search and filters.",
+                    icon = TbcIcons.Search,
+                    modifier = Modifier.height(EmptyStateSampleHeight),
+                ) {
+                    TbcButton(
+                        text = "Clear filters",
+                        onClick = {},
+                        style = TbcButtonStyle.Secondary,
+                    )
+                }
+                EmptyState(
+                    title = "Schedule coming soon",
+                    description = "The programme hasn't been published yet.",
+                    icon = TbcIcons.Calendar,
+                    modifier = Modifier.height(EmptyStateSampleHeight),
+                )
+            }
+        }
+    }
+}
+
+/** The real component fills its parent; the gallery has to bound it. */
+private val EmptyStateSampleHeight = 260.dp
 
 @Composable
 private fun StatTileSection() {

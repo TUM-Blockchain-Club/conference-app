@@ -288,6 +288,7 @@
 					"-lsqlite3",
 					"-framework",
 					shared,
+					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conference.asmara;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -318,6 +319,7 @@
 					"-lsqlite3",
 					"-framework",
 					shared,
+					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conference.asmara;
 				PRODUCT_NAME = "$(TARGET_NAME)";
