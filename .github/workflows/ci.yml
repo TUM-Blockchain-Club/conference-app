@@ -1,0 +1,114 @@
+name: CI
+
+# CI only ever *checks*. It never runs spotlessApply / swift-format --in-place
+# and never auto-commits — a formatting failure is fixed by the contributor
+# running `make format` locally.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test-android:
+    name: Kotlin lint, JVM tests, Android build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Spotless is configured with ratchetFrom("origin/main"); it cannot
+          # resolve that base ref against a shallow clone.
+          fetch-depth: 0
+
+      # actions/checkout leaves a PR build on a detached merge ref, and does not
+      # always create refs/remotes/origin/main. Spotless needs it by name.
+      - name: Fetch origin/main for the Spotless ratchet
+        run: git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # Matches androidApp's JavaVersion.VERSION_21 and the README's
+          # prerequisite. Pinned so a runner image bump cannot change it.
+          java-version: '21'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Do not rely on whatever platforms the runner image happens to ship.
+      - uses: android-actions/setup-android@v3
+
+      - name: Kotlin format check
+        run: ./gradlew spotlessCheck
+
+      - name: Shared tests (JVM)
+        run: ./gradlew :shared:testAndroidHostTest
+
+      - name: Assemble Android debug APK
+        run: ./gradlew :androidApp:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: android-test-reports
+          path: shared/build/reports/tests/**
+          if-no-files-found: ignore
+
+  ios:
+    name: Swift lint, iOS tests, framework link
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch origin/main for the Spotless ratchet
+        run: git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # The Kotlin/Native toolchain is a ~1 GB download. Without this the job
+      # re-downloads it on every run.
+      - name: Cache Kotlin/Native toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-
+
+      # swift-format ships inside Xcode, so there is nothing to install.
+      - name: Swift format check
+        run: xcrun swift-format lint --strict --recursive iosApp
+
+      # The only place shared/src/iosTest (Koin checkModules wiring) runs.
+      - name: Shared tests (iOS simulator)
+        run: ./gradlew :shared:iosSimulatorArm64Test
+
+      # Linking iosArm64 as well catches device-only failures the simulator
+      # target does not see.
+      - name: Link shared framework (simulator + device)
+        run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 :shared:linkDebugFrameworkIosArm64
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ios-test-reports
+          path: shared/build/reports/tests/**
+          if-no-files-found: ignore

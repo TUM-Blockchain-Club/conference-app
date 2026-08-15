@@ -105,7 +105,15 @@ make build         # Full compilation check
 make clean         # Clean all build outputs
 make seed          # Import supabase/seed/schedule.json
 make seed-venue    # Import supabase/seed/venue.json (run after `make seed`)
+make rls-audit     # Audit RLS + grants on the local Supabase DB
+
+make format        # Apply Kotlin formatting
+make format-swift  # Apply Swift formatting (macOS)
+make check         # Lint + tests + Android build
+make ci            # Everything CI runs, including the iOS half (macOS)
 ```
+
+See [Quality checks](#quality-checks) for the full list.
 
 ### Using Gradle directly
 
@@ -143,6 +151,69 @@ make ios-run
 
 > **Note:** iOS builds require a Mac with Xcode installed. The shared KMP framework is compiled as a static framework for `iosArm64` and `iosSimulatorArm64`.
 
+## Quality checks
+
+Formatting, tests and both platform builds run on every pull request
+(`.github/workflows/ci.yml`) and are runnable locally from one command.
+
+```bash
+make check   # any host:  lint + JVM tests + Android build
+make ci      # macOS:     the above, plus Swift lint, iOS tests, framework link
+```
+
+| Target | Runs | Host |
+|--------|------|------|
+| `make format` | `spotlessApply` — rewrites Kotlin to match ktlint | any |
+| `make format-swift` | `swift-format --in-place` over `iosApp/` | macOS |
+| `make lint` | `spotlessCheck` — Kotlin formatting, no rewrite | any |
+| `make lint-swift` | `swift-format lint --strict` over `iosApp/` | macOS |
+| `make test` | `:shared:testAndroidHostTest` | any |
+| `make test-ios` | `:shared:iosSimulatorArm64Test` (also covers `src/iosTest`) | macOS |
+| `make build-android` | `:androidApp:assembleDebug` | any |
+| `make build-ios` | Links the shared framework for simulator **and** device | macOS |
+
+### Formatting is applied by you, never by CI
+
+CI only ever *checks*. It does not run `spotlessApply`, does not run
+`swift-format --in-place`, and never pushes a commit to your branch — an
+unformatted file simply fails the PR. Run `make format` before pushing.
+
+Kotlin formatting is **ratcheted to `origin/main`**: Spotless only looks at
+files that differ from `origin/main`. So the check is green on a clean tree
+without a repo-wide reformat commit, and a pull request only has to format the
+files it actually touches. Format debt is paid down file by file as code is
+naturally edited.
+
+> The ratchet works at file granularity. Changing one line in a file that has
+> never been formatted means formatting that whole file — `make format` does it
+> for you, but the diff will be larger than the change itself.
+
+Tooling: [Spotless](https://github.com/diffplug/spotless) driving
+[ktlint](https://pinterest.github.io/ktlint/) for Kotlin (configured in
+`build.gradle.kts` and `.editorconfig`), and `swift-format` for Swift
+(`.swift-format`). swift-format ships inside Xcode — `xcrun` finds it, there is
+nothing to install.
+
+Note that `.editorconfig` is cached by the Gradle daemon: after editing it, run
+`./gradlew --stop` or the change is ignored.
+
+### What CI runs
+
+Two jobs, in parallel:
+
+| Job | Runner | Steps |
+|-----|--------|-------|
+| `lint-test-android` | `ubuntu-latest` | `spotlessCheck` → `:shared:testAndroidHostTest` → `:androidApp:assembleDebug` |
+| `ios` | `macos-latest` | `swift-format lint --strict` → `:shared:iosSimulatorArm64Test` → framework link (simulator + device) |
+
+No secrets are required. `local.properties` is absent on CI, so
+`:shared:generateSupabaseConfig` falls back to its placeholder values and
+`SupabaseIntegrationTest` skips itself unless `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY` are set in the environment.
+
+The iOS job checks that the shared framework *links*; it does not run
+`xcodebuild` against `iosApp.xcodeproj`.
+
 ## Supabase
 
 The schedule (tracks, locations, speakers, events) and the venue map (venues, levels,
@@ -156,6 +227,7 @@ SQLDelight; the app always reads from that cache (`ScheduleRepository.observeSch
 |------|---------|
 | `supabase/config.toml` | CLI project config, committed alongside migrations |
 | `supabase/migrations/` | Schema, RLS policies, grants, and the `import_schedule()` / `import_venue()` / `get_venue_map()` RPCs |
+| `supabase/checks/rls-audit.sql` | Read-only audit of the RLS/grants posture (see [Row Level Security](#row-level-security-and-grants)) |
 | `supabase/seed/schedule.schema.json` | JSON Schema for the schedule seed document |
 | `supabase/seed/schedule.json` | Editable programme data (slug-keyed, no UUIDs) |
 | `supabase/seed/venue.schema.json` | JSON Schema for the venue map seed document |
@@ -220,6 +292,60 @@ The floor plan itself is traced in QGIS and folded into `venue.json` by
 `scripts/venue-from-geojson.mjs`. The whole authoring workflow — coordinate system,
 QGIS setup, attribute fields, export — is in **[docs/VENUE-MAP.md](docs/VENUE-MAP.md)**.
 
+### Row Level Security and grants
+
+The app reads through the `anon` role, so every table in `public` is exposed to
+the internet by default and two independent layers have to agree before a row
+comes back: the SQL **grant** (what the role may do at all) and the **RLS
+policy** (which rows). RLS restricts, it never grants.
+
+`20260815000200_lock_down_grants.sql` retracts Supabase's stock
+`alter default privileges … grant all on tables to anon, authenticated`, so
+nothing is handed out automatically any more. That makes the rule for new
+objects explicit:
+
+- **A new table** needs `alter table … enable row level security`, a `select`
+  policy, and an explicit `grant select … to anon, authenticated`. Without the
+  grant the client gets `permission denied`; without RLS + policy it gets
+  nothing back (deny-all). Failing loudly in that direction is the point — the
+  old defaults failed the other way, with a silently writable table.
+- **A new function** needs an explicit `revoke all on function … from public`
+  in the migration that creates it, followed by a `grant execute` to whoever
+  should really call it. This one is *not* covered by the default-privilege
+  lockdown: Postgres grants `EXECUTE` on every new function to `PUBLIC`, and
+  `alter default privileges` is merged additively onto that built-in default
+  rather than overriding it, so the grant cannot be retracted ahead of time.
+  A function added without the `revoke` is callable by `anon` from the moment
+  it exists, and nothing complains. Import RPCs are the model to copy:
+  `security definer`, `set search_path = public`, revoked from `public`, granted
+  only to `service_role`.
+
+That second case is silent, which is exactly why the audit exists.
+
+To check the invariants rather than assume them:
+
+```bash
+supabase start     # the audit runs against the local stack
+make rls-audit
+```
+
+It prints eight sections. Three must come back **empty**: tables with RLS
+disabled, tables with RLS but no policy, and grants to `anon`/`authenticated`
+beyond `SELECT`. Section 6 — functions `anon` can execute — is the one to read
+rather than count: it should list `get_venue_map(text)` and nothing else, and
+anything marked `PUBLIC (implicit)` is a function that skipped its `revoke`.
+Section 7 flags leftover default ACLs; `supabase_admin` rows there are expected
+(they apply only to objects that role creates, and our migrations run as
+`postgres`), a `postgres` row is a regression. Run it against a hosted project
+too, once one exists:
+
+```bash
+psql "$DB_URL" -f supabase/checks/rls-audit.sql
+```
+
+`make rls-audit` needs `psql` (`brew install libpq`; Homebrew keeps it off
+`PATH`, and the Makefile finds it there anyway).
+
 ### Running against a local Supabase (Docker)
 
 ```bash
@@ -275,6 +401,9 @@ is cached as the raw `get_venue_map()` document in a single row and parsed on re
 | `local.properties` (`supabase.*`) | Supabase URL + publishable key (see [Supabase](#supabase)) |
 | `shared/build.gradle.kts` | KMP targets, shared dependencies |
 | `androidApp/build.gradle.kts` | Android app config (SDK versions, app ID) |
+| `.editorconfig` | ktlint code style and disabled rules (see [Quality checks](#quality-checks)) |
+| `.swift-format` | swift-format config for `iosApp/` |
+| `.github/workflows/ci.yml` | Lint, test and build checks run on every PR |
 
 ## Troubleshooting
 
