@@ -26,10 +26,12 @@ android {
 }
 
 dependencies {
+    // :shared transitively supplies Compose Multiplatform's Android artifacts,
+    // which publish under the same androidx.compose.* coordinates as the
+    // androidx BOM. Declaring the BOM here as well put material3 and ui on the
+    // classpath at two pinned versions at once — the classic source of
+    // "renders correctly on iOS, subtly wrong on Android". Only the host-side
+    // pieces CMP does not provide belong in this block.
     implementation(project(":shared"))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.appcompat)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.material3)
 }

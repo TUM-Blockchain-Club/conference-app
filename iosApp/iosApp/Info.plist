@@ -25,8 +25,17 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<!--
+	  An empty UILaunchScreen dict means "system default", which is a white
+	  launch image. On a #111111 app that is a full-screen white flash between
+	  tapping the icon and Compose's first frame. Naming a colorset that is
+	  #111111 in *both* appearances removes it.
+	-->
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
