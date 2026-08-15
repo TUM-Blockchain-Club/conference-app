@@ -5,6 +5,32 @@ schedule browsing and an indoor venue map, on Android and iOS. Data lives in
 Supabase Postgres and is cached on-device with SQLDelight; the UI always reads
 from the cache, so the app works offline. See `README.md` for setup.
 
+## Secrets — never read, never publish
+
+`local.properties` and any `.env` / `.env.*` file hold real credentials. They
+are gitignored and they stay that way.
+
+**Never read them.** Not with Read, not with `cat`, `grep`, `head`, `sed`,
+`env`, `printenv`, and not via a Gradle or Node script that prints them. Not
+"just to check the format" — `README.md` documents every key's shape; use that.
+
+**Never publish their contents.** Not into a commit, a PR body, an issue, a
+comment, a log line, a test fixture, a generated file, a terminal echo, or a
+message back to the user.
+
+The same rule covers anything of equal weight: keystores (`*.jks`,
+`*.keystore`, `*.p12`), private keys, and `SUPABASE_SERVICE_ROLE_KEY` or any
+other `*_SERVICE_ROLE_*` / `*_SECRET_*` environment variable. The service-role
+key bypasses RLS entirely — it never belongs in `local.properties` or the app.
+
+You do not need a real credential to work here. `:shared:generateSupabaseConfig`
+reads `local.properties` itself and falls back to placeholders, so every `make`
+target builds and passes on a machine with no keys at all. If a task looks like
+it needs one, stop and ask.
+
+This repo is public. Anything written into it is permanent — forks and archives
+outlive a deletion.
+
 ## Modules
 
 | Module | Contents |

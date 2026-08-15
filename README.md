@@ -105,6 +105,7 @@ make build         # Full compilation check
 make clean         # Clean all build outputs
 make seed          # Import supabase/seed/schedule.json
 make seed-venue    # Import supabase/seed/venue.json (run after `make seed`)
+make rls-audit     # Audit RLS + grants on the local Supabase DB
 
 make format        # Apply Kotlin formatting
 make format-swift  # Apply Swift formatting (macOS)
@@ -226,6 +227,7 @@ SQLDelight; the app always reads from that cache (`ScheduleRepository.observeSch
 |------|---------|
 | `supabase/config.toml` | CLI project config, committed alongside migrations |
 | `supabase/migrations/` | Schema, RLS policies, grants, and the `import_schedule()` / `import_venue()` / `get_venue_map()` RPCs |
+| `supabase/checks/rls-audit.sql` | Read-only audit of the RLS/grants posture (see [Row Level Security](#row-level-security-and-grants)) |
 | `supabase/seed/schedule.schema.json` | JSON Schema for the schedule seed document |
 | `supabase/seed/schedule.json` | Editable programme data (slug-keyed, no UUIDs) |
 | `supabase/seed/venue.schema.json` | JSON Schema for the venue map seed document |
@@ -289,6 +291,60 @@ cross-references — all before any network call. It then calls the transactiona
 The floor plan itself is traced in QGIS and folded into `venue.json` by
 `scripts/venue-from-geojson.mjs`. The whole authoring workflow — coordinate system,
 QGIS setup, attribute fields, export — is in **[docs/VENUE-MAP.md](docs/VENUE-MAP.md)**.
+
+### Row Level Security and grants
+
+The app reads through the `anon` role, so every table in `public` is exposed to
+the internet by default and two independent layers have to agree before a row
+comes back: the SQL **grant** (what the role may do at all) and the **RLS
+policy** (which rows). RLS restricts, it never grants.
+
+`20260815000200_lock_down_grants.sql` retracts Supabase's stock
+`alter default privileges … grant all on tables to anon, authenticated`, so
+nothing is handed out automatically any more. That makes the rule for new
+objects explicit:
+
+- **A new table** needs `alter table … enable row level security`, a `select`
+  policy, and an explicit `grant select … to anon, authenticated`. Without the
+  grant the client gets `permission denied`; without RLS + policy it gets
+  nothing back (deny-all). Failing loudly in that direction is the point — the
+  old defaults failed the other way, with a silently writable table.
+- **A new function** needs an explicit `revoke all on function … from public`
+  in the migration that creates it, followed by a `grant execute` to whoever
+  should really call it. This one is *not* covered by the default-privilege
+  lockdown: Postgres grants `EXECUTE` on every new function to `PUBLIC`, and
+  `alter default privileges` is merged additively onto that built-in default
+  rather than overriding it, so the grant cannot be retracted ahead of time.
+  A function added without the `revoke` is callable by `anon` from the moment
+  it exists, and nothing complains. Import RPCs are the model to copy:
+  `security definer`, `set search_path = public`, revoked from `public`, granted
+  only to `service_role`.
+
+That second case is silent, which is exactly why the audit exists.
+
+To check the invariants rather than assume them:
+
+```bash
+supabase start     # the audit runs against the local stack
+make rls-audit
+```
+
+It prints eight sections. Three must come back **empty**: tables with RLS
+disabled, tables with RLS but no policy, and grants to `anon`/`authenticated`
+beyond `SELECT`. Section 6 — functions `anon` can execute — is the one to read
+rather than count: it should list `get_venue_map(text)` and nothing else, and
+anything marked `PUBLIC (implicit)` is a function that skipped its `revoke`.
+Section 7 flags leftover default ACLs; `supabase_admin` rows there are expected
+(they apply only to objects that role creates, and our migrations run as
+`postgres`), a `postgres` row is a regression. Run it against a hosted project
+too, once one exists:
+
+```bash
+psql "$DB_URL" -f supabase/checks/rls-audit.sql
+```
+
+`make rls-audit` needs `psql` (`brew install libpq`; Homebrew keeps it off
+`PATH`, and the Makefile finds it there anyway).
 
 ### Running against a local Supabase (Docker)
 
