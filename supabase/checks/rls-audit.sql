@@ -5,8 +5,9 @@
 --
 --   psql "$DB_URL" -f supabase/checks/rls-audit.sql
 --
--- Sections 1, 2, 4 and 7 are the ones that must come back empty. The rest are
--- inventories — read them, don't just check the row count.
+-- Sections 1, 2 and 4 must come back empty. The rest are inventories — read
+-- them, don't just check the row count; 6 and 7 both have rows that are
+-- expected and rows that are a finding, and each labels which is which.
 --
 -- Privileges are read from the catalog (`aclexplode`, `has_function_privilege`)
 -- rather than from `information_schema`, whose grant views are filtered by the
