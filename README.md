@@ -105,7 +105,14 @@ make build         # Full compilation check
 make clean         # Clean all build outputs
 make seed          # Import supabase/seed/schedule.json
 make seed-venue    # Import supabase/seed/venue.json (run after `make seed`)
+
+make format        # Apply Kotlin formatting
+make format-swift  # Apply Swift formatting (macOS)
+make check         # Lint + tests + Android build
+make ci            # Everything CI runs, including the iOS half (macOS)
 ```
+
+See [Quality checks](#quality-checks) for the full list.
 
 ### Using Gradle directly
 
@@ -142,6 +149,69 @@ make ios-run
 ```
 
 > **Note:** iOS builds require a Mac with Xcode installed. The shared KMP framework is compiled as a static framework for `iosArm64` and `iosSimulatorArm64`.
+
+## Quality checks
+
+Formatting, tests and both platform builds run on every pull request
+(`.github/workflows/ci.yml`) and are runnable locally from one command.
+
+```bash
+make check   # any host:  lint + JVM tests + Android build
+make ci      # macOS:     the above, plus Swift lint, iOS tests, framework link
+```
+
+| Target | Runs | Host |
+|--------|------|------|
+| `make format` | `spotlessApply` — rewrites Kotlin to match ktlint | any |
+| `make format-swift` | `swift-format --in-place` over `iosApp/` | macOS |
+| `make lint` | `spotlessCheck` — Kotlin formatting, no rewrite | any |
+| `make lint-swift` | `swift-format lint --strict` over `iosApp/` | macOS |
+| `make test` | `:shared:testAndroidHostTest` | any |
+| `make test-ios` | `:shared:iosSimulatorArm64Test` (also covers `src/iosTest`) | macOS |
+| `make build-android` | `:androidApp:assembleDebug` | any |
+| `make build-ios` | Links the shared framework for simulator **and** device | macOS |
+
+### Formatting is applied by you, never by CI
+
+CI only ever *checks*. It does not run `spotlessApply`, does not run
+`swift-format --in-place`, and never pushes a commit to your branch — an
+unformatted file simply fails the PR. Run `make format` before pushing.
+
+Kotlin formatting is **ratcheted to `origin/main`**: Spotless only looks at
+files that differ from `origin/main`. So the check is green on a clean tree
+without a repo-wide reformat commit, and a pull request only has to format the
+files it actually touches. Format debt is paid down file by file as code is
+naturally edited.
+
+> The ratchet works at file granularity. Changing one line in a file that has
+> never been formatted means formatting that whole file — `make format` does it
+> for you, but the diff will be larger than the change itself.
+
+Tooling: [Spotless](https://github.com/diffplug/spotless) driving
+[ktlint](https://pinterest.github.io/ktlint/) for Kotlin (configured in
+`build.gradle.kts` and `.editorconfig`), and `swift-format` for Swift
+(`.swift-format`). swift-format ships inside Xcode — `xcrun` finds it, there is
+nothing to install.
+
+Note that `.editorconfig` is cached by the Gradle daemon: after editing it, run
+`./gradlew --stop` or the change is ignored.
+
+### What CI runs
+
+Two jobs, in parallel:
+
+| Job | Runner | Steps |
+|-----|--------|-------|
+| `lint-test-android` | `ubuntu-latest` | `spotlessCheck` → `:shared:testAndroidHostTest` → `:androidApp:assembleDebug` |
+| `ios` | `macos-latest` | `swift-format lint --strict` → `:shared:iosSimulatorArm64Test` → framework link (simulator + device) |
+
+No secrets are required. `local.properties` is absent on CI, so
+`:shared:generateSupabaseConfig` falls back to its placeholder values and
+`SupabaseIntegrationTest` skips itself unless `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY` are set in the environment.
+
+The iOS job checks that the shared framework *links*; it does not run
+`xcodebuild` against `iosApp.xcodeproj`.
 
 ## Supabase
 
@@ -267,6 +337,9 @@ is cached as the raw `get_venue_map()` document in a single row and parsed on re
 | `local.properties` (`supabase.*`) | Supabase URL + publishable key (see [Supabase](#supabase)) |
 | `shared/build.gradle.kts` | KMP targets, shared dependencies |
 | `androidApp/build.gradle.kts` | Android app config (SDK versions, app ID) |
+| `.editorconfig` | ktlint code style and disabled rules (see [Quality checks](#quality-checks)) |
+| `.swift-format` | swift-format config for `iosApp/` |
+| `.github/workflows/ci.yml` | Lint, test and build checks run on every PR |
 
 ## Troubleshooting
 

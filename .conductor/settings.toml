@@ -1,0 +1,25 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Committed counterpart to the (gitignored) settings.local.toml. These mirror
+# the Makefile's quality targets so a workspace can self-verify before a PR.
+# See README.md#quality-checks.
+
+[scripts.run.Format]
+command = "make format"
+available_in = ["local", "cloud"]
+hide = false
+icon = "play"
+
+[scripts.run.Check]
+command = "make check"
+available_in = ["local", "cloud"]
+hide = false
+icon = "play"
+
+# Local only: `ci` includes the Swift and Kotlin/Native halves, which need a Mac
+# with Xcode. Cloud workspaces run Linux, where `xcrun` does not exist.
+[scripts.run.CI]
+command = "make ci"
+available_in = ["local"]
+hide = false
+icon = "play"
