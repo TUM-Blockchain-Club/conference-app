@@ -146,6 +146,65 @@ The RPC's response reports `unresolved_locations`; it should be `0`.
 
 ---
 
+## The überlab dataset
+
+The venue in `supabase/seed/venue.json` is **überlab, House of Communication
+München** (August-Everding-Str. 25). It was *not* traced in QGIS — it was
+hand-authored from the venue's own brochure,
+`Ueberlab_Conferencing-und-Events_Januar.pdf`, whose **page 7** carries the
+ground-floor plan ("Überblick buchbaren Flächen EG") and **page 8** the first
+floor ("1. OG"), each with the room table that gives every space its area and
+capacity. The QGIS round trip above stays the documented path for a re-trace;
+for forty rectilinear rooms off an orthographic plan it cost more than it saved.
+
+Things worth knowing before editing it:
+
+**The venue is three detached houses**, JOIN, HEART and LAB, left to right,
+about 190 m end to end. They are separate buildings — there is no single
+building outline, so neither level defines `outline`; each house is a feature of
+its own in category `other` and the floors' extent comes from the features. The
+two bridges that join them exist only on the 1st floor, which is why the ground
+floor has none.
+
+**Both plans are raster images inside the PDF**, and the two are drawn at
+*different* scales — 33.9 px/m on page 7, 32.9 px/m on page 8 at a 300 dpi
+render — with different gaps between the houses. So the floors cannot share one
+transform: each house is registered separately, its traced centre placed on the
+metre box the 1. OG sheet gives it. Calibration was cross-checked against the
+printed dimensions of Konferenz 3, 5, 6 and 9+10, Flex, Studio and Worklab 1+2;
+every traced room lands within ~8 % of its printed `Größe`.
+
+**The purple fills on the plans are bookable areas, not walled rooms.** JOIN's
+is Workcafé and Join Lounge in one envelope; HEART's is the whole GERN hall with
+SPRESS and the PS5 Gaming Lounge as zones inside it; LAB's runs Worklab 1 into
+Worklab 2. Each envelope is kept as the traced polygon and the named zones are
+drawn over it with a higher `sort_order`, so the zones label and tap correctly
+while the hall keeps its real shape. A zone's rectangle is sized to its printed
+m², not traced — there is no line on the plan to trace.
+
+**The conference's own layout comes from the markup on page 8**, which somebody
+added over the 1. OG plan: Ticketing at the JOIN-side mouth of the bridge, an
+arrow east into HEART, four unlabelled markers along that route (carried as
+`booth-1`…`booth-4`), "Talk rooms 1-2" pointing at Konferenz 9 and 10, and
+"Dining area (downstairs) / Talk rooms 3-4" against the HEART stair. That last
+one is the one inference in the dataset: it says those three are one floor down
+from that stair, and the spaces down there are GERN, SPRESS and the PS5 Gaming
+Lounge, so they carry `dining-area`, `talk-room-3` and `talk-room-4`.
+
+Two conflicts inside the brochure were resolved in favour of the plan tables:
+GERN is 900 m² on p32 but 2 000 m² in the EG table (900 is the hall, 2 000 is
+GERN *gesamt*, including the Holztafel and the Biergarten), and Opie Green is
+32 m² on p36 but 50 m² in the 1. OG table. The traced GERN envelope comes out at
+about 1 200 m², which is the hall plus the SPRESS and PS5 zones — consistent
+with the 900 m² reading.
+
+**Not in the dataset:** a main entrance marker. The outer walls carry door
+symbols in several places and the brochure never says which one the public
+enters by, and a guessed entrance is worse than none. Add it once someone
+who has been there can point at it.
+
+---
+
 ## Editing without QGIS
 
 `supabase/seed/venue.json` is plain JSON and hand-editing it is fine for a room
