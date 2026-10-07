@@ -182,6 +182,15 @@ object TbcIcons {
         )
     }
 
+    /** lucide `bell` — announcements, notifications. */
+    val Bell: ImageVector by lazy {
+        lucide(
+            "Bell",
+            "M10.268 21a2 2 0 0 0 3.464 0",
+            "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
+        )
+    }
+
     // -- Status ------------------------------------------------------------
 
     /** lucide `info`. */
@@ -248,27 +257,26 @@ object TbcIcons {
  * an icon is a copy-paste from the Lucide source with no transcription step to
  * get wrong.
  */
-private fun lucide(name: String, vararg pathData: String): ImageVector =
-    ImageVector.Builder(
-        name = name,
-        defaultWidth = IconSize,
-        defaultHeight = IconSize,
-        viewportWidth = ViewportSize,
-        viewportHeight = ViewportSize,
-    ).apply {
-        pathData.forEach { d ->
-            addPath(
-                pathData = PathParser().parsePathString(d).toNodes(),
-                // No fill: these are outline icons. The colour is a placeholder
-                // that Icon's tint replaces wholesale.
-                fill = null,
-                stroke = SolidColor(Color.Black),
-                strokeLineWidth = StrokeWidth,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-            )
-        }
-    }.build()
+private fun lucide(name: String, vararg pathData: String): ImageVector = ImageVector.Builder(
+    name = name,
+    defaultWidth = IconSize,
+    defaultHeight = IconSize,
+    viewportWidth = ViewportSize,
+    viewportHeight = ViewportSize,
+).apply {
+    pathData.forEach { d ->
+        addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            // No fill: these are outline icons. The colour is a placeholder
+            // that Icon's tint replaces wholesale.
+            fill = null,
+            stroke = SolidColor(Color.Black),
+            strokeLineWidth = StrokeWidth,
+            strokeLineCap = StrokeCap.Round,
+            strokeLineJoin = StrokeJoin.Round,
+        )
+    }
+}.build()
 
 /**
  * A circle as a path.

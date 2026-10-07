@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -62,6 +64,7 @@ import com.conference.asmara.ui.components.TbcCard
 import com.conference.asmara.ui.components.TbcFilterChip
 import com.conference.asmara.ui.components.TbcScaffold
 import com.conference.asmara.ui.components.TbcSearchField
+import com.conference.asmara.ui.components.TbcSwitch
 import com.conference.asmara.ui.components.TbcTextField
 import com.conference.asmara.ui.icons.TbcIcons
 import com.conference.asmara.ui.map.VenueMapCanvas
@@ -125,6 +128,7 @@ class GalleryScreen : Screen {
                 BadgeSection()
                 TabSection()
                 FilterChipSection()
+                SwitchSection()
                 StatTileSection()
                 StatBarSection()
                 BannerSection()
@@ -243,7 +247,7 @@ private fun Swatch(name: String, color: Color) {
                 .size(28.dp)
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(color)
-                .border(1.dp, tokens.borderSubtle, MaterialTheme.shapes.extraSmall)
+                .border(1.dp, tokens.borderSubtle, MaterialTheme.shapes.extraSmall),
         )
         Text(
             text = name,
@@ -363,9 +367,10 @@ private fun TabSection() {
             PillTab("Statistics", TbcIcons.BarChart),
             PillTab("Attendance", TbcIcons.CheckCircle),
             PillTab("NFT Status", TbcIcons.Hexagon),
+            PillTab("News", TbcIcons.Bell, badge = "3", badgeDescription = "3 unread"),
         )
     }
-    GallerySection(title = "Tabs", subtitle = "Scrolls horizontally, fades at the edge") {
+    GallerySection(title = "Tabs", subtitle = "Scrolls horizontally, fades at the edge; optional count badge") {
         PillTabRow(
             tabs = tabs,
             selectedIndex = selected,
@@ -403,6 +408,50 @@ private fun FilterChipSection() {
                 onToggle = { upcoming = !upcoming },
                 icon = TbcIcons.Clock,
             )
+        }
+    }
+}
+
+/**
+ * All four switch states side by side. The disabled-on one is the case that
+ * matters most: "on, and not yours to change" — an emergency category — has to
+ * read as on without inviting a tap.
+ */
+@Composable
+private fun SwitchSection() {
+    val spacing = TbcTheme.spacing
+    var standalone by remember { mutableStateOf(true) }
+    var inRow by remember { mutableStateOf(false) }
+
+    GallerySection(title = "Switches", subtitle = "Position carries state, not just colour") {
+        TbcCard(Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TbcSwitch(
+                        checked = standalone,
+                        onCheckedChange = { standalone = it },
+                        contentDescription = "Standalone switch",
+                    )
+                    TbcSwitch(checked = true, onCheckedChange = null, enabled = false)
+                    TbcSwitch(checked = false, onCheckedChange = null, enabled = false)
+                }
+                // The row pattern: the row is the toggleable, the switch only
+                // indicates. Tapping the label flips it.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(value = inRow, role = Role.Switch, onValueChange = { inRow = it }),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Keynote reminders",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TbcTheme.tokens.textPrimary,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TbcSwitch(checked = inRow, onCheckedChange = null)
+                }
+            }
         }
     }
 }
@@ -468,11 +517,46 @@ private fun StatBarSection() {
             SectionHeader(title = "Member Status", count = "132 total")
             Spacer(Modifier.height(spacing.lg))
             Column(verticalArrangement = Arrangement.spacedBy(spacing.md)) {
-                StatBarRow("Active", "54", 0.409f, barColor = tokens.success, dotColor = tokens.success, secondaryValue = "(40.9%)")
-                StatBarRow("Honorary", "10", 0.076f, barColor = tokens.warning, dotColor = tokens.warning, secondaryValue = "(7.6%)")
-                StatBarRow("Alumni", "35", 0.265f, barColor = tokens.success, dotColor = tokens.success, secondaryValue = "(26.5%)")
-                StatBarRow("Advisor", "7", 0.053f, barColor = tokens.accentSecondary, dotColor = tokens.accentSecondary, secondaryValue = "(5.3%)")
-                StatBarRow("Passive", "15", 0.114f, barColor = tokens.textMuted, dotColor = tokens.textMuted, secondaryValue = "(11.4%)")
+                StatBarRow(
+                    "Active",
+                    "54",
+                    0.409f,
+                    barColor = tokens.success,
+                    dotColor = tokens.success,
+                    secondaryValue = "(40.9%)",
+                )
+                StatBarRow(
+                    "Honorary",
+                    "10",
+                    0.076f,
+                    barColor = tokens.warning,
+                    dotColor = tokens.warning,
+                    secondaryValue = "(7.6%)",
+                )
+                StatBarRow(
+                    "Alumni",
+                    "35",
+                    0.265f,
+                    barColor = tokens.success,
+                    dotColor = tokens.success,
+                    secondaryValue = "(26.5%)",
+                )
+                StatBarRow(
+                    "Advisor",
+                    "7",
+                    0.053f,
+                    barColor = tokens.accentSecondary,
+                    dotColor = tokens.accentSecondary,
+                    secondaryValue = "(5.3%)",
+                )
+                StatBarRow(
+                    "Passive",
+                    "15",
+                    0.114f,
+                    barColor = tokens.textMuted,
+                    dotColor = tokens.textMuted,
+                    secondaryValue = "(11.4%)",
+                )
             }
         }
     }
@@ -643,7 +727,7 @@ private fun VenueMapSection() {
                                     .size(28.dp)
                                     .clip(MaterialTheme.shapes.extraSmall)
                                     .background(mapCategoryFill(category, tokens.surfaceCard))
-                                    .border(1.dp, tokens.borderSubtle, MaterialTheme.shapes.extraSmall)
+                                    .border(1.dp, tokens.borderSubtle, MaterialTheme.shapes.extraSmall),
                             )
                         }
                     }
@@ -682,11 +766,7 @@ private fun galleryLevel(): VenueLevel {
         listOf(Point(x0, y0), Point(x1, y0), Point(x1, y1), Point(x0, y1)),
     )
     var index = 0
-    fun feature(
-        name: String,
-        category: MapCategory,
-        shape: FeatureShape,
-    ) = MapFeature(
+    fun feature(name: String, category: MapCategory, shape: FeatureShape) = MapFeature(
         id = "gallery-${index++}",
         slug = name.lowercase().replace(' ', '-'),
         name = name,
@@ -726,11 +806,7 @@ private fun galleryLevel(): VenueLevel {
 private val VenueMapSampleHeight = 280.dp
 
 @Composable
-private fun GallerySection(
-    title: String,
-    subtitle: String? = null,
-    content: @Composable () -> Unit,
-) {
+private fun GallerySection(title: String, subtitle: String? = null, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(TbcTheme.spacing.lg)) {
         SectionHeader(title = title, subtitle = subtitle)
         content()
