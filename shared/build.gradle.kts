@@ -81,8 +81,8 @@ kotlin {
             implementation(compose.ui)
             @Suppress("DEPRECATION")
             implementation(compose.components.resources)
-            // api: androidApp/MainActivity references org.koin.core.module.Module directly
-            // (App()'s platformModule parameter type), so it needs this on its compile classpath.
+            // api: androidApp references org.koin.core.Koin directly (App()'s parameter type,
+            // and AsmaraApplication starts the container), so it needs this on its compile classpath.
             api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.ktor.client.core)

@@ -7,7 +7,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.conference.asmara.App
-import com.conference.asmara.androidPlatformModule
+import org.koin.mp.KoinPlatform
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +24,10 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
 
+        // The container was started by AsmaraApplication and outlives this
+        // activity, so a recreation reuses it instead of building another.
         setContent {
-            App(androidPlatformModule(applicationContext))
+            App(KoinPlatform.getKoin())
         }
     }
 }

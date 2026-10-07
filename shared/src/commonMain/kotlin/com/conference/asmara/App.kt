@@ -6,17 +6,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
-import com.conference.asmara.di.appModule
-import com.conference.asmara.di.dataModule
 import com.conference.asmara.ui.RootScreen
 import com.conference.asmara.ui.theme.TbcTheme
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
+import org.koin.compose.KoinContext
+import org.koin.core.Koin
 
+/**
+ * @param koin an already-started container — see
+ *   [com.conference.asmara.di.initKoin]. Taken as a parameter rather than built
+ *   here so the container outlives the composition: an Android activity
+ *   recreation reuses it instead of building a second `SupabaseClient` and
+ *   SQLite driver, and code that runs with no UI at all can reach it.
+ */
 @Composable
-fun App(platformModule: Module) {
-    KoinApplication(application = { modules(platformModule, appModule, dataModule) }) {
-        // TbcTheme sits inside KoinApplication rather than outside it because
+fun App(koin: Koin) {
+    KoinContext(koin) {
+        // TbcTheme sits inside KoinContext rather than outside it because
         // reduceMotionEnabled() reads LocalContext on Android, which must
         // already be in scope.
         TbcTheme {
