@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "seed": "node seed-supabase.mjs",
-    "seed:venue": "node seed-venue.mjs"
+    "seed:venue": "node seed-venue.mjs",
+    "seed:announcements": "node seed-announcements.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

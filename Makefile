@@ -1,4 +1,4 @@
-.PHONY: android-run ios-run adb-reverse stop-android stop-ios build clean seed seed-venue rls-audit help \
+.PHONY: android-run ios-run adb-reverse stop-android stop-ios build clean seed seed-venue seed-announcements rls-audit help \
         format format-swift lint lint-swift test test-ios build-android build-ios check ci
 
 # ANDROID_HOME is not exported by every shell profile, so fall back to the
@@ -94,6 +94,9 @@ seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUP
 
 seed-venue: ## Seed the venue map from supabase/seed/venue.json (same env vars; run `seed` first — features reference locations)
 	cd scripts && npm install && npm run seed:venue
+
+seed-announcements: ## Seed announcements from supabase/seed/announcements.json (same env vars)
+	cd scripts && npm install && npm run seed:announcements
 
 # The connection string is read out of the running CLI, never stored here: no
 # credential belongs in the repo. See CLAUDE.md, "Secrets".

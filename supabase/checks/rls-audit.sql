@@ -135,9 +135,9 @@ select pg_get_userbyid(d.defaclrole) as created_by_role,
  order by 2, 1, 3, 4, 5;
 
 \echo
-\echo '=== 8. Read path smoke test, as anon (schedule + venue map) ==============='
--- Row counts only. Draft events are excluded by the events RLS policy, so
--- `events` here is the published count, not the table count.
+\echo '=== 8. Read path smoke test, as anon (schedule, venue map, announcements) =='
+-- Row counts only. Draft events and draft announcements are excluded by their
+-- RLS policies, so those two rows are published counts, not table counts.
 set role anon;
 select 'events (published)' as source, count(*) from public.events
 union all select 'speakers (linked to published)', count(*) from public.speakers
@@ -145,5 +145,6 @@ union all select 'tracks', count(*) from public.tracks
 union all select 'locations', count(*) from public.locations
 union all select 'venues', count(*) from public.venues
 union all select 'venue_levels', count(*) from public.venue_levels
-union all select 'map_features', count(*) from public.map_features;
+union all select 'map_features', count(*) from public.map_features
+union all select 'announcements (published)', count(*) from public.announcements;
 reset role;
