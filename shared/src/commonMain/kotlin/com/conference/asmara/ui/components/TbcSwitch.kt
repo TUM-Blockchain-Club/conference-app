@@ -44,9 +44,10 @@ import com.conference.asmara.ui.theme.TbcTheme
  *   settings row. The switch becomes a pure indicator and [contentDescription]
  *   is ignored.
  *
- * @param enabled false greys the control out. A disabled switch that is
- *   [checked] reads as "on, and not yours to change" — used for categories a
- *   user cannot opt out of.
+ * @param enabled false takes the fill away. A disabled switch that is
+ *   [checked] keeps its thumb at the end in accent, with an accent hairline:
+ *   "on, and not yours to change" — used for categories a user cannot opt out
+ *   of. Disabled and unchecked is all grey.
  */
 @Composable
 fun TbcSwitch(
@@ -69,15 +70,26 @@ fun TbcSwitch(
     )
     val thumb by animateColorAsState(
         targetValue = when {
+            // Disabled-but-on keeps an accent thumb: a grey thumb on a grey
+            // track read as "off" in testing, whatever side it sat on.
+            !enabled && checked -> tokens.accent
+
             !enabled -> tokens.textDisabled
+
             checked -> tokens.onAccent
+
             else -> tokens.textMuted
         },
         animationSpec = tween(motion.d(motion.fast)),
         label = "switchThumb",
     )
     val stroke by animateColorAsState(
-        targetValue = if (checked && enabled) tokens.accent else tokens.borderStrong,
+        targetValue = when {
+            checked && enabled -> tokens.accent
+            checked -> tokens.accentBorder
+            enabled -> tokens.borderStrong
+            else -> tokens.borderSubtle
+        },
         animationSpec = tween(motion.d(motion.fast)),
         label = "switchStroke",
     )

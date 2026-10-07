@@ -220,10 +220,11 @@ TbcSwitch(
 
 A 44×24 pill track with an 18dp thumb, inside a box that guarantees the 48dp
 target. On: accent track, `onAccent` thumb at the end. Off: `surfaceMuted` track
-with a `borderStrong` hairline, `textMuted` thumb at the start. Disabled: muted
-track, `textDisabled` thumb — and a disabled switch that is *on* still sits at
-the end, which is how "on, and not yours to change" reads (the emergency
-category).
+with a `borderStrong` hairline, `textMuted` thumb at the start. Disabled and
+off: muted track, `borderSubtle` hairline, `textDisabled` thumb. Disabled and
+*on*: muted track, `accentBorder` hairline, `accent` thumb at the end — "on, and
+not yours to change" (the emergency category). An all-grey disabled-on switch
+was tried first and read as off.
 
 Not M3's `Switch`: its track and thumb colours come from `colorScheme` roles this
 theme neutralises, and its checked track is a tonal fill with no token here.

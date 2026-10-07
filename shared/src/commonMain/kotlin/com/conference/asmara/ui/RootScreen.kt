@@ -17,6 +17,8 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.conference.asmara.ui.announcements.AnnouncementsContent
+import com.conference.asmara.ui.announcements.AnnouncementsScreenModel
 import com.conference.asmara.ui.components.PillTab
 import com.conference.asmara.ui.components.PillTabRow
 import com.conference.asmara.ui.components.TabRowDivider
@@ -31,10 +33,10 @@ import com.conference.asmara.ui.schedule.ScheduleScreenModel
 import com.conference.asmara.ui.theme.TbcTheme
 import org.koin.compose.getKoin
 
-private enum class RootTab { SCHEDULE, MAP }
+private enum class RootTab { SCHEDULE, MAP, NEWS }
 
 /**
- * The tab shell: the app's two top-level destinations, and the one scaffold
+ * The tab shell: the app's three top-level destinations, and the one scaffold
  * they share.
  *
  * ### One scaffold, not three
@@ -44,7 +46,7 @@ private enum class RootTab { SCHEDULE, MAP }
  * hovering a home-indicator's height above the bottom edge — a bug that looks
  * like a padding typo and is not. So the shell owns the only scaffold, and each
  * tab contributes a `*Content` composable with no scaffold of its own. The
- * `Screen` wrappers (`ScheduleListScreen`, `MapScreen`) still exist for pushing
+ * `Screen` wrappers (`ScheduleListScreen`, `MapScreen`, `AnnouncementsScreen`) still exist for pushing
  * a tab on its own; they are simply not what the shell uses.
  *
  * ### Detail still covers the tabs
@@ -69,6 +71,14 @@ class RootScreen : Screen {
         val focusRequests = remember(koin) { koin.get<MapFocusRequests>() }
         val spacing = TbcTheme.spacing
 
+        // Created eagerly, unlike the other two tabs' models: the tab badge needs
+        // the unread count before anyone opens News, and the model's first
+        // refresh is what produces it.
+        val announcementsModel = rememberScreenModel(tag = "announcements") {
+            koin.get<AnnouncementsScreenModel>()
+        }
+        val announcements by announcementsModel.state.collectAsState()
+
         // rememberSaveable: an Android configuration change must not drop the
         // user back onto Schedule.
         var selectedTab by rememberSaveable { mutableIntStateOf(RootTab.SCHEDULE.ordinal) }
@@ -81,10 +91,17 @@ class RootScreen : Screen {
             if (pendingFocus != null) selectedTab = RootTab.MAP.ordinal
         }
 
-        val tabs = remember {
+        val unreadBadge = announcements.unreadBadge
+        val tabs = remember(unreadBadge) {
             listOf(
                 PillTab("Schedule", TbcIcons.Calendar),
                 PillTab("Map", TbcIcons.Map),
+                PillTab(
+                    "News",
+                    TbcIcons.Bell,
+                    badge = unreadBadge,
+                    badgeDescription = unreadBadge?.let { "$it unread" },
+                ),
             )
         }
 
@@ -109,6 +126,7 @@ class RootScreen : Screen {
                             },
                             onEventClick = { navigator.push(EventDetailScreen(it)) },
                         )
+
                         RootTab.MAP -> MapContent(
                             screenModel = rememberScreenModel(tag = "map") {
                                 koin.get<MapScreenModel>()
@@ -117,6 +135,8 @@ class RootScreen : Screen {
                             focusLocationId = pendingFocus,
                             onFocusHandled = focusRequests::consume,
                         )
+
+                        RootTab.NEWS -> AnnouncementsContent(screenModel = announcementsModel)
                     }
                 }
                 TabRowDivider()

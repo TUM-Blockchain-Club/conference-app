@@ -1,5 +1,6 @@
 package com.conference.asmara.di
 
+import com.conference.asmara.ui.announcements.AnnouncementsScreenModel
 import com.conference.asmara.ui.detail.EventDetailScreenModel
 import com.conference.asmara.ui.map.MapFocusRequests
 import com.conference.asmara.ui.map.MapScreenModel
@@ -12,6 +13,7 @@ import org.koin.dsl.module
 val appModule = module {
     factory { ScheduleScreenModel(get()) }
     factory { MapScreenModel(get(), get()) }
+    factory { AnnouncementsScreenModel(get(), get()) }
     factory { (eventId: String) -> EventDetailScreenModel(eventId, get(), get()) }
 
     // single, and deliberately so: this one outlives every screen that touches
