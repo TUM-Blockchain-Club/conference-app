@@ -5,7 +5,8 @@
 --
 --   psql "$DB_URL" -f supabase/checks/rls-audit.sql
 --
--- Sections 1, 2 and 4 must come back empty. The rest are inventories — read
+-- Sections 1, 2 and 4 must come back empty — section 2 apart from the one
+-- table it names as intended. The rest are inventories — read
 -- them, don't just check the row count; 6 and 7 both have rows that are
 -- expected and rows that are a finding, and each labels which is which.
 --
@@ -29,6 +30,13 @@ select c.relname as table_name,
 
 \echo
 \echo '=== 2. Tables with RLS ON but ZERO policies (deny-all — expect zero rows) =='
+-- One named exception, excluded below rather than listed: `device_tokens` is
+-- deny-all *on purpose*. anon/authenticated have no grant on it at all, and
+-- the only way in is the `register_device_token` RPC (security definer,
+-- returns void) — see 20260916000100_device_tokens.sql. A policy that grants
+-- nothing would make this section quiet at the cost of being more confusing
+-- than the deny-all it replaced. Any *other* table appearing here is a
+-- finding: RLS was enabled and its select policy forgotten.
 select c.relname as table_name
   from pg_class c
   join pg_namespace n on n.oid = c.relnamespace
@@ -36,7 +44,22 @@ select c.relname as table_name
    and c.relkind in ('r', 'p')
    and c.relrowsecurity
    and not exists (select 1 from pg_policy p where p.polrelid = c.oid)
+   and c.relname <> 'device_tokens'
  order by 1;
+
+\echo
+\echo '=== 2b. device_tokens stays unreadable to clients (expect zero rows) ======='
+-- The exception above is only safe while this holds: no table privilege of
+-- any kind for anon/authenticated, SELECT included.
+select r.rolname as grantee, a.privilege_type
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+ cross join lateral aclexplode(c.relacl) a
+  join pg_roles r on r.oid = a.grantee
+ where n.nspname = 'public'
+   and c.relname = 'device_tokens'
+   and r.rolname in ('anon', 'authenticated')
+ order by 1, 2;
 
 \echo
 \echo '=== 3. Every policy on public (inventory — read the quals) ================'
@@ -82,8 +105,12 @@ select p.proname as function_name,
 
 \echo
 \echo '=== 6. Functions in public that anon can EXECUTE (READ THIS ONE) ========='
--- Expect exactly get_venue_map(text). import_schedule/import_venue must NOT
--- appear: they are security definer and service_role only.
+-- Expect exactly two rows:
+--   * get_venue_map(text) — read-only, the venue map document;
+--   * register_device_token(text, text, text[]) — the one write path anon has,
+--     security definer, returns void. See 20260916000100_device_tokens.sql.
+-- import_schedule / import_venue / import_announcements / prune_device_tokens
+-- and the push trigger function must NOT appear: they are service_role only.
 --
 -- This is the section that catches a new RPC, because nothing in the schema
 -- prevents one. Postgres grants EXECUTE on every new function to PUBLIC, and
