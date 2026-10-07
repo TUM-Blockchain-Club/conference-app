@@ -167,9 +167,9 @@ make ci      # macOS:     the above, plus Swift lint, iOS tests, framework link
 | Target | Runs | Host |
 |--------|------|------|
 | `make format` | `spotlessApply` — rewrites Kotlin to match ktlint | any |
-| `make format-swift` | `swift-format --in-place` over `iosApp/` | macOS |
+| `make format-swift` | `swift-format --in-place` over `iosApp/iosApp/` | macOS |
 | `make lint` | `spotlessCheck` — Kotlin formatting, no rewrite | any |
-| `make lint-swift` | `swift-format lint --strict` over `iosApp/` | macOS |
+| `make lint-swift` | `swift-format lint --strict` over `iosApp/iosApp/` (not Xcode's `iosApp/build/`) | macOS |
 | `make test` | `:shared:testAndroidHostTest` | any |
 | `make test-ios` | `:shared:iosSimulatorArm64Test` (also covers `src/iosTest`) | macOS |
 | `make test-functions` | `node --test` over the send-announcement Edge Function's FCM logic | any (Node 22.18+) |

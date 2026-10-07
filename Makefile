@@ -64,14 +64,18 @@ clean: ## Clean all build outputs
 format: ## Apply Kotlin formatting (ktlint via Spotless) to files changed vs origin/main
 	./gradlew spotlessApply
 
-format-swift: ## Apply Swift formatting to iosApp/ (macOS — uses Xcode's bundled swift-format)
-	xcrun swift-format format --in-place --recursive iosApp
+# Scoped to the sources, not iosApp/: `make ios-run` leaves Xcode's derived
+# output (GeneratedAssetSymbols.swift and friends) under iosApp/build, which is
+# gitignored, unformatted, and would fail --strict on every machine that has
+# run the app. CI never has that directory, which is how this went unnoticed.
+format-swift: ## Apply Swift formatting to iosApp/iosApp (macOS — uses Xcode's bundled swift-format)
+	xcrun swift-format format --in-place --recursive iosApp/iosApp
 
 lint: ## Check Kotlin formatting without changing anything
 	./gradlew spotlessCheck
 
 lint-swift: ## Check Swift formatting without changing anything (macOS)
-	xcrun swift-format lint --strict --recursive iosApp
+	xcrun swift-format lint --strict --recursive iosApp/iosApp
 
 test: ## Run the shared test suite on the JVM
 	./gradlew :shared:testAndroidHostTest
