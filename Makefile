@@ -1,5 +1,5 @@
 .PHONY: android-run ios-run adb-reverse stop-android stop-ios build clean seed seed-venue seed-announcements rls-audit help \
-        format format-swift lint lint-swift test test-ios build-android build-ios check ci
+        format format-swift lint lint-swift test test-ios test-functions build-android build-ios check ci
 
 # ANDROID_HOME is not exported by every shell profile, so fall back to the
 # location Android Studio installs into. Overridable: `make ADB=/path/to/adb`.
@@ -79,13 +79,18 @@ test: ## Run the shared test suite on the JVM
 test-ios: ## Run the shared test suite on the iOS simulator target (macOS)
 	./gradlew :shared:iosSimulatorArm64Test
 
+# Plain Node (>= 22.18 strips TypeScript natively): fcm.ts uses only fetch and
+# Web Crypto, so it needs neither Deno nor the Supabase CLI.
+test-functions: ## Unit-test the Edge Function's FCM logic (Node 22.18+)
+	node --test supabase/functions/send-announcement/fcm.test.ts
+
 build-android: ## Assemble the debug Android APK
 	./gradlew :androidApp:assembleDebug
 
 build-ios: ## Link the shared framework for simulator and device (macOS)
 	./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 :shared:linkDebugFrameworkIosArm64
 
-check: lint test build-android ## Lint + test + build Android (runs on any host)
+check: lint test test-functions build-android ## Lint + tests (JVM + Edge Function) + build Android (any host)
 
 ci: check lint-swift test-ios build-ios ## Everything CI runs, including the iOS half (macOS)
 
