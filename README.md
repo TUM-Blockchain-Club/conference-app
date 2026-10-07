@@ -11,6 +11,7 @@ Kotlin Multiplatform (KMP) Compose Multiplatform app targeting Android and iOS.
 | Networking | Ktor 3.5.0 (OkHttp on Android, Darwin on iOS) |
 | Backend | Supabase (supabase-kt 3.5.0, Postgrest) |
 | Offline cache | SQLDelight 2.3.2 |
+| Push (optional) | Firebase Cloud Messaging via a Supabase Edge Function — inert without credentials |
 | DI | Koin 4.2.1 |
 | Serialization | Kotlin Serialization |
 | Language | Kotlin 2.3.20 |
@@ -80,13 +81,14 @@ conference-app/
 │       └── iosTest/                 # DI wiring test (needs the iOS platform module)
 ├── androidApp/                      # Android application module
 │   └── src/main/
-│       └── kotlin/.../MainActivity.kt
+│       └── kotlin/.../                  # AsmaraApplication (starts Koin), MainActivity, AsmaraMessagingService
 ├── iosApp/                          # Native iOS app (Swift wrapper)
 │   └── iosApp/
-│       ├── iOSApp.swift             # App entry point
+│       ├── iOSApp.swift             # App entry point (starts Koin)
+│       ├── AppDelegate.swift        # Push token + notification callbacks
 │       └── ContentView.swift        # Hosts Compose UI via UIViewControllerRepresentable
 ├── docs/                            # DESIGN.md (design system), VENUE-MAP.md (floor-plan authoring)
-├── supabase/                        # Migrations, RLS policies, import RPCs, seed data + schemas
+├── supabase/                        # Migrations, RLS policies, RPCs, seed data + schemas, Edge Functions
 ├── scripts/                         # Node seed scripts (validate + import supabase/seed/*.json)
 ├── gradle/libs.versions.toml        # Version catalog
 ├── Makefile                         # Build & run shortcuts
@@ -105,6 +107,7 @@ make build         # Full compilation check
 make clean         # Clean all build outputs
 make seed          # Import supabase/seed/schedule.json
 make seed-venue    # Import supabase/seed/venue.json (run after `make seed`)
+make seed-announcements # Import supabase/seed/announcements.json
 make rls-audit     # Audit RLS + grants on the local Supabase DB
 
 make format        # Apply Kotlin formatting
@@ -157,7 +160,7 @@ Formatting, tests and both platform builds run on every pull request
 (`.github/workflows/ci.yml`) and are runnable locally from one command.
 
 ```bash
-make check   # any host:  lint + JVM tests + Android build
+make check   # any host:  lint + JVM tests + Edge Function tests + Android build
 make ci      # macOS:     the above, plus Swift lint, iOS tests, framework link
 ```
 
@@ -169,6 +172,7 @@ make ci      # macOS:     the above, plus Swift lint, iOS tests, framework link
 | `make lint-swift` | `swift-format lint --strict` over `iosApp/` | macOS |
 | `make test` | `:shared:testAndroidHostTest` | any |
 | `make test-ios` | `:shared:iosSimulatorArm64Test` (also covers `src/iosTest`) | macOS |
+| `make test-functions` | `node --test` over the send-announcement Edge Function's FCM logic | any (Node 22.18+) |
 | `make build-android` | `:androidApp:assembleDebug` | any |
 | `make build-ios` | Links the shared framework for simulator **and** device | macOS |
 
@@ -203,11 +207,12 @@ Two jobs, in parallel:
 
 | Job | Runner | Steps |
 |-----|--------|-------|
-| `lint-test-android` | `ubuntu-latest` | `spotlessCheck` → `:shared:testAndroidHostTest` → `:androidApp:assembleDebug` |
+| `lint-test-android` | `ubuntu-latest` | `spotlessCheck` → `:shared:testAndroidHostTest` → `:androidApp:assembleDebug` → Edge Function tests |
 | `ios` | `macos-latest` | `swift-format lint --strict` → `:shared:iosSimulatorArm64Test` → framework link (simulator + device) |
 
 No secrets are required. `local.properties` is absent on CI, so
-`:shared:generateSupabaseConfig` falls back to its placeholder values and
+`:shared:generateSupabaseConfig` falls back to its placeholder values, push is
+generated as disabled (no `google-services.json`), and
 `SupabaseIntegrationTest` skips itself unless `SUPABASE_URL` and
 `SUPABASE_PUBLISHABLE_KEY` are set in the environment.
 
@@ -226,7 +231,7 @@ SQLDelight; the app always reads from that cache (`ScheduleRepository.observeSch
 | Path | Purpose |
 |------|---------|
 | `supabase/config.toml` | CLI project config, committed alongside migrations |
-| `supabase/migrations/` | Schema, RLS policies, grants, and the `import_schedule()` / `import_venue()` / `get_venue_map()` RPCs |
+| `supabase/migrations/` | Schema, RLS policies, grants, the `import_*()` / `get_venue_map()` / `register_device_token()` RPCs, and the announcement push trigger |
 | `supabase/checks/rls-audit.sql` | Read-only audit of the RLS/grants posture (see [Row Level Security](#row-level-security-and-grants)) |
 | `supabase/seed/schedule.schema.json` | JSON Schema for the schedule seed document |
 | `supabase/seed/schedule.json` | Editable programme data (slug-keyed, no UUIDs) |
@@ -235,6 +240,10 @@ SQLDelight; the app always reads from that cache (`ScheduleRepository.observeSch
 | `scripts/seed-supabase.mjs` | Validates `schedule.json` and imports it via `import_schedule()` |
 | `scripts/seed-venue.mjs` | Validates `venue.json` and imports it via `import_venue()` |
 | `scripts/venue-from-geojson.mjs` | Folds a QGIS GeoJSON export into `venue.json` |
+| `supabase/seed/announcements.schema.json` | JSON Schema for the announcements seed document |
+| `supabase/seed/announcements.json` | Editable announcements (slug-keyed; `is_published` is what publishes — and pushes) |
+| `scripts/seed-announcements.mjs` | Validates `announcements.json` and imports it via `import_announcements()` |
+| `supabase/functions/send-announcement/` | Edge Function fanning a published announcement out over FCM (see [Push notifications](#announcements-and-push-notifications)) |
 
 ### Configuring the app
 
@@ -292,6 +301,17 @@ The floor plan itself is traced in QGIS and folded into `venue.json` by
 `scripts/venue-from-geojson.mjs`. The whole authoring workflow — coordinate system,
 QGIS setup, attribute fields, export — is in **[docs/VENUE-MAP.md](docs/VENUE-MAP.md)**.
 
+### Seeding announcements
+
+```bash
+make seed-announcements    # same two environment variables
+```
+
+Validates `supabase/seed/announcements.json` against its JSON Schema and the four
+categories (`general`, `schedule`, `keynote`, `emergency`) before any network call, then
+calls `import_announcements()`, which upserts by slug and prunes the rest. Rows with
+`is_published: false` are drafts: invisible to the app, and never pushed.
+
 ### Row Level Security and grants
 
 The app reads through the `anon` role, so every table in `public` is exposed to
@@ -329,11 +349,14 @@ supabase start     # the audit runs against the local stack
 make rls-audit
 ```
 
-It prints eight sections. Three must come back **empty**: tables with RLS
-disabled, tables with RLS but no policy, and grants to `anon`/`authenticated`
-beyond `SELECT`. Section 6 — functions `anon` can execute — is the one to read
-rather than count: it should list `get_venue_map(text)` and nothing else, and
-anything marked `PUBLIC (implicit)` is a function that skipped its `revoke`.
+It prints its sections in order. Four must come back **empty**: tables with RLS
+disabled, tables with RLS but no policy (`device_tokens` is the one named, intended
+exception — deny-all on purpose), `device_tokens` privileges for
+`anon`/`authenticated` (2b), and grants to `anon`/`authenticated` beyond `SELECT`.
+Section 6 — functions `anon` can execute — is the one to read rather than count: it
+should list `get_venue_map(text)` and `register_device_token(text, text, text[])` and
+nothing else, and anything marked `PUBLIC (implicit)` is a function that skipped its
+`revoke`.
 Section 7 flags leftover default ACLs; `supabase_admin` rows there are expected
 (they apply only to objects that role creates, and our migrations run as
 `postgres`), a `postgres` row is a regression. Run it against a hosted project
@@ -391,6 +414,102 @@ succeeded — so the UI keeps showing the last known programme when offline.
 instead of 15 minutes: a talk can move an hour before it starts, a wall cannot. The map
 is cached as the raw `get_venue_map()` document in a single row and parsed on read.
 
+`AnnouncementRepository` is the same again with a 5-minute TTL — an emergency notice is
+the most time-critical data in the app. Read state (`readAt`) and the per-category
+notification preferences live only in the on-device database: there are no accounts,
+so neither syncs across a person's devices.
+
+## Announcements and push notifications
+
+The **News** tab shows announcements — schedule changes, keynote reminders, venue news
+and emergency notices — with an unread badge on the tab and per-category toggles below
+the feed. Emergency cannot be turned off.
+
+```
+organizer edits supabase/seed/announcements.json
+        │  make seed-announcements
+        ▼
+  public.announcements ──trigger (pg_net)──▶ Edge Function send-announcement ──FCM──▶ devices
+        │ RLS: published rows only                       │ reads device_tokens (service role)
+        ▼                                                ▼
+  app: refresh() ──▶ SQLDelight cache ──▶ feed     device_tokens ◀── register_device_token RPC
+```
+
+The feed is **not** driven by push. A push only tells the app to refresh; the cache is
+the source of truth, as for the schedule. That is why the whole feature works today
+with no push infrastructure at all: seed an announcement, see it in the feed, toggle
+categories.
+
+### Push is credential-optional
+
+Every `make` target builds and passes with no Firebase project and no Apple Developer
+account. Each layer is inert on its own until configured:
+
+| Layer | Turns on when | Without it |
+|---|---|---|
+| Android app | `androidApp/google-services.json` exists (gitignored) | `NoOpPushRegistrar` bound; google-services plugin not applied; no permission prompt, no registration |
+| iOS app | `iosApp/iosApp/GoogleService-Info.plist` exists (gitignored) | same, on iOS |
+| Either app | — | `push.enabled=false` in `local.properties` forces it off even with the file present |
+| Database trigger | a Vault secret `send_announcement_url` exists | publishing just publishes |
+| Edge Function | `FCM_PROJECT_ID` and `FCM_SERVICE_ACCOUNT_JSON` function secrets are set | logs `push disabled: FCM credentials absent`, returns 200 |
+
+`:shared:generatePushConfig*` writes `PushConfig.ENABLED` per platform; the platform Koin
+module is the only code that reads it.
+
+### What it takes to deliver a push
+
+None of this can be done from the repo. Until it is, push is written and unit-tested
+but undeliverable:
+
+1. Create a Firebase project; add an Android app with id `com.conference.asmara.android`;
+   put its `google-services.json` in `androidApp/`.
+2. Enrol in the Apple Developer Program; enable Push Notifications for
+   `com.conference.asmara`; create an APNs auth key (`.p8` — a secret, never in the repo)
+   and upload it to the Firebase project so FCM can relay to iOS.
+3. iOS only: add the Firebase iOS SDK (`FirebaseMessaging`) to `iosApp`, add
+   `GoogleService-Info.plist`, and switch `AppDelegate` to forward the FCM token instead
+   of the raw APNs token (the code to write is in the comment at the call site). The send
+   path speaks FCM only, and an APNs token is not an FCM token.
+4. On the hosted project:
+   ```bash
+   supabase secrets set FCM_PROJECT_ID=<project-id> FCM_SERVICE_ACCOUNT_JSON="$(cat <service-account>.json)"
+   supabase functions deploy send-announcement     # verify_jwt = false comes from config.toml
+   ```
+   and in the SQL editor:
+   ```sql
+   select vault.create_secret(
+     'https://<project-ref>.supabase.co/functions/v1/send-announcement',
+     'send_announcement_url');
+   ```
+
+Then, with *Keynote reminders* toggled off on a test device, publish one `emergency`
+and one `keynote` announcement: the emergency must arrive (it ignores preferences), the
+keynote must not. Physical devices only; the iOS simulator never receives a
+real APNs push.
+
+### How sending works
+
+The trigger fires when a row becomes published with `pushed_at` null and calls the
+function through `pg_net` (asynchronous; a failure never blocks publishing). The
+function **claims** the row by moving `pushed_at` off null — so a repeated call cannot
+send twice, and clearing `pushed_at` re-arms it — skips anything published over an hour
+ago (so switching push on mid-event does not replay the backlog), and pages through
+`device_tokens` 500 at a time: rows whose `categories` contain the announcement's
+category, or *every* row for `emergency`. Tokens FCM reports `UNREGISTERED` are deleted;
+`INVALID_ARGUMENT` ones only when the same batch also had successes, so a malformed
+payload cannot wipe the table.
+
+### The write path this adds
+
+`register_device_token` is the first thing in this schema `anon` can write through.
+`anon` has no privilege on `device_tokens` at all — not even `SELECT` — and RLS is on
+with no policy; the RPC is `security definer`, returns `void`, and keys rows on the
+token's SHA-256. The raw token is stored too because FCM needs it, so the hash is for
+idempotent upserts, not secrecy: service-role-only access is what protects the table.
+Anyone with the public key can insert junk rows; that is inherent to push without
+accounts, bounded by input checks and rate limiting, and cleaned up with
+`select prune_device_tokens('30 days')` (service role).
+
 ## Configuration
 
 | File | Purpose |
@@ -399,6 +518,8 @@ is cached as the raw `get_venue_map()` document in a single row and parsed on re
 | `gradle.properties` | JVM args, Kotlin style, AndroidX settings |
 | `local.properties` | Local Android SDK path (gitignored) |
 | `local.properties` (`supabase.*`) | Supabase URL + publishable key (see [Supabase](#supabase)) |
+| `local.properties` (`push.enabled`) | `false` forces push off even with Firebase config present |
+| `androidApp/google-services.json`, `iosApp/iosApp/GoogleService-Info.plist` | Firebase config; presence turns push on (gitignored) |
 | `shared/build.gradle.kts` | KMP targets, shared dependencies |
 | `androidApp/build.gradle.kts` | Android app config (SDK versions, app ID) |
 | `.editorconfig` | ktlint code style and disabled rules (see [Quality checks](#quality-checks)) |
