@@ -1,0 +1,79 @@
+-- Announcements cache plus the device's notification preferences.
+--
+-- New in schema version 3 — see 2.sqm for the upgrade path.
+
+CREATE TABLE announcementEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  category TEXT NOT NULL,
+  publishedAt INTEGER NOT NULL,
+  -- Local only, never sent anywhere. There are no user accounts, so read
+  -- state cannot live on the server; it is this column and nothing else, and
+  -- it does not follow a person to their other devices. A refresh must
+  -- preserve it for rows that still exist — see replaceAll in
+  -- AnnouncementLocalDataSource.
+  readAt INTEGER
+);
+
+CREATE INDEX announcementEntity_publishedAt ON announcementEntity(publishedAt);
+
+-- One row per category the user has *touched*. A missing row means enabled:
+-- opt-out, not opt-in, which is what an attendee expects of a conference app
+-- they installed on purpose. Two columns do not justify a second persistence
+-- mechanism (DataStore, multiplatform-settings) beside a database the app
+-- already has.
+CREATE TABLE notificationPreference (
+  category TEXT NOT NULL PRIMARY KEY,
+  enabled INTEGER NOT NULL
+);
+
+-- Separate from the schedule's syncMetadata: the two caches refresh on
+-- different TTLs and must not reset each other's clocks.
+CREATE TABLE announcementSyncMetadata (
+  id INTEGER NOT NULL PRIMARY KEY DEFAULT 0 CHECK (id = 0),
+  lastSyncedAt INTEGER
+);
+
+selectAnnouncements:
+SELECT * FROM announcementEntity ORDER BY publishedAt DESC, id ASC;
+
+-- Insert-or-ignore followed by update, rather than an upsert: ON CONFLICT DO
+-- UPDATE needs SQLite 3.24, and Android 8–10 ship older. The update leaves
+-- readAt alone, which is the whole point.
+insertAnnouncementOrIgnore:
+INSERT OR IGNORE INTO announcementEntity(id, slug, title, body, category, publishedAt, readAt)
+VALUES (?, ?, ?, ?, ?, ?, NULL);
+
+updateAnnouncement:
+UPDATE announcementEntity
+SET slug = :slug, title = :title, body = :body, category = :category, publishedAt = :publishedAt
+WHERE id = :id;
+
+deleteAnnouncementsNotIn:
+DELETE FROM announcementEntity WHERE id NOT IN ?;
+
+deleteAllAnnouncements:
+DELETE FROM announcementEntity;
+
+markAllAnnouncementsRead:
+UPDATE announcementEntity SET readAt = ? WHERE readAt IS NULL;
+
+countAnnouncements:
+SELECT COUNT(*) FROM announcementEntity;
+
+countUnreadAnnouncements:
+SELECT COUNT(*) FROM announcementEntity WHERE readAt IS NULL;
+
+selectAnnouncementLastSyncedAt:
+SELECT lastSyncedAt FROM announcementSyncMetadata WHERE id = 0;
+
+upsertAnnouncementLastSyncedAt:
+INSERT OR REPLACE INTO announcementSyncMetadata(id, lastSyncedAt) VALUES (0, ?);
+
+selectNotificationPreferences:
+SELECT category, enabled FROM notificationPreference;
+
+upsertNotificationPreference:
+INSERT OR REPLACE INTO notificationPreference(category, enabled) VALUES (?, ?);
