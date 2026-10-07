@@ -37,5 +37,11 @@ iosApp/build/
 .env.*
 *.local
 
+# Push credentials and per-project Firebase config (#7). Never committed: the
+# build detects their presence and turns push on; absent, push is inert.
+androidApp/google-services.json
+iosApp/iosApp/GoogleService-Info.plist
+*.p8
+
 # Node (seed script)
 scripts/node_modules/

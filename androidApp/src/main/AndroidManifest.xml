@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Requested at runtime on API 33+, the first time the News tab opens, and
+         only when push is configured (PushConfig.ENABLED). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!--
         No configChanges on the activity: the DI container lives in
         AsmaraApplication, so a recreation rebuilds only the UI and reuses the
@@ -11,6 +14,22 @@
         android:label="Asmara"
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config">
+        <!-- FCM draws background notifications into this channel, created in
+             AsmaraApplication. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="announcements" />
+
+        <!-- Inert without google-services.json: no FirebaseApp, so FCM never
+             starts it. -->
+        <service
+            android:name=".AsmaraMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

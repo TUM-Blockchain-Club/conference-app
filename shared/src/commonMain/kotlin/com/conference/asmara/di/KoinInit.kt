@@ -1,5 +1,6 @@
 package com.conference.asmara.di
 
+import com.conference.asmara.push.PushTokenSyncer
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -20,5 +21,11 @@ import org.koin.mp.KoinPlatform
  * started" crash: the iOS host can be torn down and rebuilt by SwiftUI, and a
  * test may start the app twice in one process.
  */
-fun initKoin(platformModule: Module): Koin =
-    KoinPlatform.getKoinOrNull() ?: startKoin { modules(platformModule, appModule, dataModule) }.koin
+fun initKoin(platformModule: Module): Koin {
+    KoinPlatform.getKoinOrNull()?.let { return it }
+    val koin = startKoin { modules(platformModule, appModule, dataModule) }.koin
+    // Push registration belongs to the process, not to a screen. With push
+    // disabled this starts a syncer that has nothing to sync.
+    koin.get<PushTokenSyncer>().start()
+    return koin
+}

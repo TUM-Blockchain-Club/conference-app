@@ -13,7 +13,7 @@ import org.koin.dsl.module
 val appModule = module {
     factory { ScheduleScreenModel(get()) }
     factory { MapScreenModel(get(), get()) }
-    factory { AnnouncementsScreenModel(get(), get()) }
+    factory { AnnouncementsScreenModel(get(), get(), get()) }
     factory { (eventId: String) -> EventDetailScreenModel(eventId, get(), get()) }
 
     // single, and deliberately so: this one outlives every screen that touches

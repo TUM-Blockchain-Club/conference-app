@@ -8,6 +8,7 @@ import com.conference.asmara.domain.repository.AnnouncementRepository
 import com.conference.asmara.domain.repository.NotificationPreferencesRepository
 import com.conference.asmara.domain.repository.Outcome
 import com.conference.asmara.domain.repository.SyncResult
+import com.conference.asmara.push.PushRegistrar
 import com.conference.asmara.ui.common.ConferenceTimeZone
 import com.conference.asmara.ui.common.syncedAtLabel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,6 +36,7 @@ import kotlinx.datetime.TimeZone
 class AnnouncementsScreenModel(
     private val repository: AnnouncementRepository,
     private val preferences: NotificationPreferencesRepository,
+    private val pushRegistrar: PushRegistrar,
     private val zone: TimeZone = ConferenceTimeZone,
     // Injected so tests can put derivation on the test scheduler.
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -47,6 +49,7 @@ class AnnouncementsScreenModel(
     private val seenThisVisit = MutableStateFlow<Set<String>>(emptySet())
 
     private var loadJob: Job? = null
+    private var permissionAsked = false
 
     init {
         screenModelScope.launch {
@@ -75,9 +78,21 @@ class AnnouncementsScreenModel(
         load(force = false, userInitiated = false)
     }
 
-    /** The feed came on screen. Clears the badge; keeps the "New" markers for this visit. */
+    /**
+     * The feed came on screen. Clears the badge; keeps the "New" markers for
+     * this visit.
+     *
+     * Also where the notification permission is asked for, once per process:
+     * on first opening the feed the prompt has a context, where at launch it
+     * would be a dialog over a schedule the user came to read. A no-op with
+     * push disabled — the registrar is then the no-op one.
+     */
     fun onShown() {
         visible.value = true
+        if (!permissionAsked) {
+            permissionAsked = true
+            screenModelScope.launch { pushRegistrar.requestPermission() }
+        }
     }
 
     /** The feed left the screen. The next visit starts with no "New" markers but the genuinely new. */

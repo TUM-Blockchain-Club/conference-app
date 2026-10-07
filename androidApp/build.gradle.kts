@@ -1,6 +1,16 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.googleServices) apply false
+}
+
+// Push is credential-optional. The google-services plugin *fails the build*
+// when google-services.json is missing, so applying it unconditionally would
+// break CI and every contributor without a Firebase project. It is applied
+// only when the file exists; :shared's generated PushConfig keys off the same
+// file, so the two cannot disagree. See README.md#push-notifications.
+if (rootProject.file("androidApp/google-services.json").exists()) {
+    apply(plugin = libs.plugins.googleServices.get().pluginId)
 }
 
 android {
@@ -34,4 +44,9 @@ dependencies {
     // pieces CMP does not provide belong in this block.
     implementation(project(":shared"))
     implementation(libs.androidx.activity.compose)
+    // For AsmaraMessagingService. Inert without google-services.json: no
+    // default FirebaseApp is configured, and nothing calls into Firebase
+    // unless PushConfig.ENABLED bound the Firebase registrar.
+    implementation(project.dependencies.platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 }

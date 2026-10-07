@@ -6,9 +6,11 @@ import com.conference.asmara.domain.repository.AnnouncementRepository
 import com.conference.asmara.domain.repository.NotificationPreferencesRepository
 import com.conference.asmara.domain.repository.Outcome
 import com.conference.asmara.domain.repository.SyncResult
+import com.conference.asmara.push.PushRegistrar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -59,6 +61,20 @@ private class FakeNotificationPreferences : NotificationPreferencesRepository {
     }
 }
 
+private class CountingPushRegistrar : PushRegistrar {
+    var permissionRequests = 0
+        private set
+
+    override suspend fun currentToken(): String? = null
+
+    override suspend fun requestPermission(): Boolean {
+        permissionRequests++
+        return true
+    }
+
+    override val tokenUpdates: Flow<String> = emptyFlow()
+}
+
 private fun announcement(
     id: String,
     category: AnnouncementCategory = AnnouncementCategory.GENERAL,
@@ -77,9 +93,11 @@ private fun announcement(
 private fun TestScope.model(
     repository: AnnouncementRepository,
     preferences: NotificationPreferencesRepository = FakeNotificationPreferences(),
+    pushRegistrar: PushRegistrar = CountingPushRegistrar(),
 ) = AnnouncementsScreenModel(
     repository = repository,
     preferences = preferences,
+    pushRegistrar = pushRegistrar,
     defaultDispatcher = StandardTestDispatcher(testScheduler),
 )
 
@@ -264,6 +282,21 @@ class AnnouncementsScreenModelTest {
 
         assertNull(model.state.value.errorMessage)
         assertEquals(1, model.state.value.announcements.size)
+    }
+
+    @Test
+    fun notificationPermissionIsAskedOnFirstOpeningTheFeedAndOnlyThen() = runTest {
+        val registrar = CountingPushRegistrar()
+        val model = model(FakeAnnouncementRepository(), pushRegistrar = registrar)
+        testScheduler.advanceUntilIdle()
+        assertEquals(0, registrar.permissionRequests, "not at launch, before the feed has been seen")
+
+        model.onShown()
+        model.onHidden()
+        model.onShown()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(1, registrar.permissionRequests)
     }
 
     @Test

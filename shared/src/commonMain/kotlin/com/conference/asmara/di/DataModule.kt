@@ -20,7 +20,13 @@ import com.conference.asmara.domain.repository.AnnouncementRepository
 import com.conference.asmara.domain.repository.NotificationPreferencesRepository
 import com.conference.asmara.domain.repository.ScheduleRepository
 import com.conference.asmara.domain.repository.VenueMapRepository
+import com.conference.asmara.push.DeviceTokenRegistry
+import com.conference.asmara.push.PushTokenSyncer
+import com.conference.asmara.push.SupabaseDeviceTokenRegistry
 import io.github.jan.supabase.SupabaseClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -39,4 +45,11 @@ val dataModule = module {
     single<AnnouncementRemoteDataSource> { SupabaseAnnouncementRemoteDataSource(get()) }
     single<AnnouncementRepository> { AnnouncementRepositoryImpl(get(), get()) }
     single<NotificationPreferencesRepository> { NotificationPreferencesRepositoryImpl(get()) }
+
+    // PushRegistrar and PushPlatform come from the platform module, which is
+    // where PushConfig.ENABLED decides between the real registrar and the no-op.
+    single<DeviceTokenRegistry> { SupabaseDeviceTokenRegistry(get()) }
+    // Process-lifetime scope: the syncer outlives every screen, and on Android
+    // it must keep running while no activity exists.
+    single { PushTokenSyncer(get(), get(), get(), get(), CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
 }

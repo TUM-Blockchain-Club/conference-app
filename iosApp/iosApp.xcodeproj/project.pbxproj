@@ -10,6 +10,7 @@
 		7555FF84242A565A00829871 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF83242A565A00829871 /* iOSApp.swift */; };
 		058557BB273AAA2400C7B9BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA2400C7B9BD /* ContentView.swift */; };
 		7555FF8C242A565A00829871 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7555FF8B242A565A00829871 /* Assets.xcassets */; };
+		7555FFC1242A700000829871 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FFC0242A700000829871 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -18,6 +19,8 @@
 		058557BA273AAA2400C7B9BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7555FF8B242A565A00829871 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7555FF87242A565A00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7555FFC0242A700000829871 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		7555FFC2242A700000829871 /* iosApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iosApp.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,9 +54,11 @@
 			isa = PBXGroup;
 			children = (
 				7555FF83242A565A00829871 /* iOSApp.swift */,
+				7555FFC0242A700000829871 /* AppDelegate.swift */,
 				058557BA273AAA2400C7B9BD /* ContentView.swift */,
 				7555FF8B242A565A00829871 /* Assets.xcassets */,
 				7555FF87242A565A00829871 /* Info.plist */,
+				7555FFC2242A700000829871 /* iosApp.entitlements */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -145,6 +150,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7555FF84242A565A00829871 /* iOSApp.swift in Sources */,
+				7555FFC1242A700000829871 /* AppDelegate.swift in Sources */,
 				058557BB273AAA2400C7B9BD /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,6 +277,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -302,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
