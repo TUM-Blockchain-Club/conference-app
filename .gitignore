@@ -43,5 +43,8 @@ androidApp/google-services.json
 iosApp/iosApp/GoogleService-Info.plist
 *.p8
 
+# Supabase CLI local state (`supabase start` writes generated secrets here)
+supabase/.temp/
+
 # Node (seed script)
 scripts/node_modules/
