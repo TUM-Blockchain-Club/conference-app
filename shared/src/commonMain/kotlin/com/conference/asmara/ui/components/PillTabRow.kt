@@ -27,13 +27,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.conference.asmara.ui.theme.TbcTheme
 
-/** One entry in a [PillTabRow]. */
+/**
+ * One entry in a [PillTabRow].
+ *
+ * @param badge a short count drawn as a [CountPill] after the label — "3",
+ *   "99+". Null draws nothing; pass null rather than "0".
+ * @param badgeDescription what [badge] means, for a screen reader: "3 unread"
+ *   rather than a bare "3" read after the tab name.
+ */
 data class PillTab(
     val label: String,
     val icon: ImageVector? = null,
+    val badge: String? = null,
+    val badgeDescription: String? = null,
 )
 
 /**
@@ -55,12 +66,7 @@ data class PillTab(
  * never the only signal.
  */
 @Composable
-fun PillTabRow(
-    tabs: List<PillTab>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun PillTabRow(tabs: List<PillTab>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val tokens = TbcTheme.tokens
     val spacing = TbcTheme.spacing
     val scrollState = rememberScrollState()
@@ -85,11 +91,7 @@ fun PillTabRow(
 }
 
 @Composable
-private fun PillTabItem(
-    tab: PillTab,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
+private fun PillTabItem(tab: PillTab, selected: Boolean, onClick: () -> Unit) {
     val tokens = TbcTheme.tokens
     val spacing = TbcTheme.spacing
     val motion = TbcTheme.motion
@@ -128,6 +130,14 @@ private fun PillTabItem(
             style = MaterialTheme.typography.labelMedium,
             color = content,
         )
+        if (tab.badge != null) {
+            CountPill(
+                text = tab.badge,
+                modifier = Modifier.clearAndSetSemantics {
+                    tab.badgeDescription?.let { contentDescription = it }
+                },
+            )
+        }
     }
 }
 
@@ -141,11 +151,7 @@ private fun PillTabItem(
  * Shared with [FilterChipRow] — both scroll pills horizontally, and two
  * implementations would drift.
  */
-internal fun Modifier.edgeFade(
-    canvas: Color,
-    fadeStart: Boolean,
-    fadeEnd: Boolean,
-): Modifier = this.drawWithContent {
+internal fun Modifier.edgeFade(canvas: Color, fadeStart: Boolean, fadeEnd: Boolean): Modifier = this.drawWithContent {
     drawContent()
     val width = 24.dp.toPx()
     if (fadeStart) {
@@ -178,6 +184,6 @@ fun TabRowDivider(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .size(HairlineWidth)
-            .background(TbcTheme.tokens.borderSubtle)
+            .background(TbcTheme.tokens.borderSubtle),
     )
 }

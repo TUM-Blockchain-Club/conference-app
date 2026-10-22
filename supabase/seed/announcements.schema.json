@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tum-blockchain-club.github.io/conference-app/announcements.schema.json",
+  "title": "Conference announcements seed document",
+  "description": "Slug-keyed announcements imported into Supabase via public.import_announcements(). The slug is the natural key used to match rows across imports. Publishing a row (is_published: true) is what sends its push notification, once push is configured.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["announcements"],
+  "definitions": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    }
+  },
+  "properties": {
+    "announcements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "title", "body", "category"],
+        "properties": {
+          "slug": { "$ref": "#/definitions/slug" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "body": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "category": {
+            "description": "Must match the announcements_category_valid check constraint and AnnouncementCategory in the app. 'emergency' reaches every device regardless of its preferences.",
+            "enum": ["general", "schedule", "keynote", "emergency"]
+          },
+          "published_at": { "type": "string", "format": "date-time" },
+          "is_published": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

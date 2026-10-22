@@ -1,0 +1,44 @@
+{
+  "announcements": [
+    {
+      "slug": "welcome",
+      "title": "Welcome to TBC Conference",
+      "body": "Badges are at the registration desk by the main entrance from 08:00. Coffee is on in the dining area.",
+      "category": "general",
+      "published_at": "2026-09-01T06:30:00Z",
+      "is_published": true
+    },
+    {
+      "slug": "opening-keynote-reminder",
+      "title": "Opening keynote in 15 minutes",
+      "body": "Jane Doe opens the conference at 11:00 in Talk Room 1. Doors close five minutes before the start.",
+      "category": "keynote",
+      "published_at": "2026-09-01T08:45:00Z",
+      "is_published": true
+    },
+    {
+      "slug": "oracle-panel-moved",
+      "title": "Oracle panel moved to Talk Room 3",
+      "body": "The oracle infrastructure panel now takes place in Talk Room 3. The time is unchanged.",
+      "category": "schedule",
+      "published_at": "2026-09-01T10:15:00Z",
+      "is_published": true
+    },
+    {
+      "slug": "fire-drill",
+      "title": "Fire alarm test at 14:00",
+      "body": "The venue tests its fire alarm at 14:00 today. No action is needed unless staff ask you to leave the building.",
+      "category": "emergency",
+      "published_at": "2026-09-01T11:30:00Z",
+      "is_published": true
+    },
+    {
+      "slug": "day-two-doors",
+      "title": "Day two: doors open at 08:30",
+      "body": "Draft — not visible in the app until is_published is set to true.",
+      "category": "general",
+      "published_at": "2026-09-02T06:00:00Z",
+      "is_published": false
+    }
+  ]
+}

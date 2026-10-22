@@ -1,0 +1,27 @@
+-- 2 -> 3: add the announcements cache and notification preferences (see
+-- Announcements.sq).
+--
+-- Needed for the same reason as 1.sqm: SQLDelight runs the CREATE statements
+-- in the .sq files only for a *fresh* database, so without this an installed
+-- app never upgrades and the first query fails with "no such table".
+CREATE TABLE announcementEntity (
+  id TEXT NOT NULL PRIMARY KEY,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  category TEXT NOT NULL,
+  publishedAt INTEGER NOT NULL,
+  readAt INTEGER
+);
+
+CREATE INDEX announcementEntity_publishedAt ON announcementEntity(publishedAt);
+
+CREATE TABLE notificationPreference (
+  category TEXT NOT NULL PRIMARY KEY,
+  enabled INTEGER NOT NULL
+);
+
+CREATE TABLE announcementSyncMetadata (
+  id INTEGER NOT NULL PRIMARY KEY DEFAULT 0 CHECK (id = 0),
+  lastSyncedAt INTEGER
+);

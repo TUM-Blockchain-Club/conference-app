@@ -14,12 +14,12 @@ interface ScheduleRepository {
 }
 
 /**
- * Shared by [ScheduleRepository] and [VenueMapRepository] — the offline story
- * is identical for both, and a second vocabulary for it would be two things to
- * keep in step.
+ * Shared by [ScheduleRepository], [VenueMapRepository] and
+ * [AnnouncementRepository] — the offline story is identical for all three, and
+ * a second vocabulary for it would be two things to keep in step.
  *
  * @param itemCount how much is in the cache afterwards: events for the
- *   schedule, features for the venue map. Deliberately not `eventCount`, which
+ *   schedule, features for the venue map, announcements for the feed. Deliberately not `eventCount`, which
  *   would read as a lie in the map's half of the codebase.
  */
 data class SyncResult(val outcome: Outcome, val syncedAt: Instant?, val itemCount: Int)

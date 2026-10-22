@@ -34,4 +34,12 @@ jwt_expiry = 3600
 enable_signup = false
 
 [edge_runtime]
-enabled = false
+enabled = true
+
+# Called by the announcements_send_push trigger through pg_net, which sends no
+# Authorization header. Safe without JWT verification: the request carries only
+# an announcement id, and the function acts on server-side state alone — it
+# claims the row atomically and never sends a draft or anything twice. See the
+# header of supabase/functions/send-announcement/index.ts.
+[functions.send-announcement]
+verify_jwt = false

@@ -1,5 +1,5 @@
-.PHONY: android-run ios-run adb-reverse stop-android stop-ios build clean seed seed-venue rls-audit help \
-        format format-swift lint lint-swift test test-ios build-android build-ios check ci
+.PHONY: android-run ios-run adb-reverse stop-android stop-ios build clean seed seed-venue seed-announcements rls-audit help \
+        format format-swift lint lint-swift test test-ios test-functions build-android build-ios check ci
 
 # ANDROID_HOME is not exported by every shell profile, so fall back to the
 # location Android Studio installs into. Overridable: `make ADB=/path/to/adb`.
@@ -64,14 +64,18 @@ clean: ## Clean all build outputs
 format: ## Apply Kotlin formatting (ktlint via Spotless) to files changed vs origin/main
 	./gradlew spotlessApply
 
-format-swift: ## Apply Swift formatting to iosApp/ (macOS — uses Xcode's bundled swift-format)
-	xcrun swift-format format --in-place --recursive iosApp
+# Scoped to the sources, not iosApp/: `make ios-run` leaves Xcode's derived
+# output (GeneratedAssetSymbols.swift and friends) under iosApp/build, which is
+# gitignored, unformatted, and would fail --strict on every machine that has
+# run the app. CI never has that directory, which is how this went unnoticed.
+format-swift: ## Apply Swift formatting to iosApp/iosApp (macOS — uses Xcode's bundled swift-format)
+	xcrun swift-format format --in-place --recursive iosApp/iosApp
 
 lint: ## Check Kotlin formatting without changing anything
 	./gradlew spotlessCheck
 
 lint-swift: ## Check Swift formatting without changing anything (macOS)
-	xcrun swift-format lint --strict --recursive iosApp
+	xcrun swift-format lint --strict --recursive iosApp/iosApp
 
 test: ## Run the shared test suite on the JVM
 	./gradlew :shared:testAndroidHostTest
@@ -79,13 +83,18 @@ test: ## Run the shared test suite on the JVM
 test-ios: ## Run the shared test suite on the iOS simulator target (macOS)
 	./gradlew :shared:iosSimulatorArm64Test
 
+# Plain Node (>= 22.18 strips TypeScript natively): fcm.ts uses only fetch and
+# Web Crypto, so it needs neither Deno nor the Supabase CLI.
+test-functions: ## Unit-test the Edge Function's FCM logic (Node 22.18+)
+	node --test supabase/functions/send-announcement/fcm.test.ts
+
 build-android: ## Assemble the debug Android APK
 	./gradlew :androidApp:assembleDebug
 
 build-ios: ## Link the shared framework for simulator and device (macOS)
 	./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 :shared:linkDebugFrameworkIosArm64
 
-check: lint test build-android ## Lint + test + build Android (runs on any host)
+check: lint test test-functions build-android ## Lint + tests (JVM + Edge Function) + build Android (any host)
 
 ci: check lint-swift test-ios build-ios ## Everything CI runs, including the iOS half (macOS)
 
@@ -94,6 +103,9 @@ seed: ## Seed Supabase from supabase/seed/schedule.json (needs SUPABASE_URL, SUP
 
 seed-venue: ## Seed the venue map from supabase/seed/venue.json (same env vars; run `seed` first — features reference locations)
 	cd scripts && npm install && npm run seed:venue
+
+seed-announcements: ## Seed announcements from supabase/seed/announcements.json (same env vars)
+	cd scripts && npm install && npm run seed:announcements
 
 # The connection string is read out of the running CLI, never stored here: no
 # credential belongs in the repo. See CLAUDE.md, "Secrets".

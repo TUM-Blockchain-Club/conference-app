@@ -37,7 +37,7 @@ re-derive them.
 | `tween(300)` | `tween(motion.d(motion.standard))` |
 | `Modifier.shadow` for depth | surface step + `borderSubtle` hairline |
 | `tonalElevation > 0` | `tonalElevation = 0.dp`, always |
-| Stock `Card` / `Button` / `Chip` / `TabRow` / `Scaffold` | the `Tbc*` equivalent |
+| Stock `Card` / `Button` / `Chip` / `TabRow` / `Switch` / `Scaffold` | the `Tbc*` equivalent |
 | Translucent **fills** | opaque `surfaceCard` / `surfaceMuted`; alpha only for strokes and state layers |
 | Ad-hoc new colours | derive with `flatten(base, α)`, add to `Palette.kt` **and** `Tokens.kt` **and** the docs |
 | Long text on filled blue | outlined blue-on-dark badge |
@@ -145,6 +145,7 @@ Sections separated by `x3l`, cards by `xxl`, list rows by `md`.
 | Legend / category marker | `ColorDot` |
 | Top-level navigation | `PillTabRow` (single-select) |
 | Narrowing a list | `TbcFilterChip` in a `FilterChipRow` (multi-select) |
+| On/off setting | `TbcSwitch` — in a `toggleable(role = Role.Switch)` row when labelled |
 | Form input | `TbcTextField` |
 | Search | `TbcSearchField` |
 | Nothing to show | `EmptyState` — action only if the user can fix it |

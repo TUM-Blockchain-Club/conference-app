@@ -144,7 +144,7 @@ usual source is `trackColor(...)` — a runtime value from Supabase, not a token
 
 ```kotlin
 PillTabRow(
-    tabs: List<PillTab>,          // PillTab(label, icon)
+    tabs: List<PillTab>,          // PillTab(label, icon, badge, badgeDescription)
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -162,6 +162,11 @@ overlay, so it cannot double-composite against a pill beneath it.
 The selected pill is one of the two places filled blue may carry text: labels
 are short, and selection is also encoded by fill, position and icon, so the
 3.68:1 text is never the only signal.
+
+`PillTab.badge` draws a `CountPill` after the label — the News tab's unread
+count. Pass a short preformatted string (`"3"`, `"99+"`) or null; never `"0"`.
+`badgeDescription` replaces the badge's semantics, so a screen reader says
+"News, 3 unread" rather than "News, 3".
 
 ---
 
@@ -198,6 +203,49 @@ changes width as it toggles and the row does not reflow under the thumb.
 scrolls rather than wraps because filters sit directly above the list they act
 on, and wrapping would push the first result off-screen as soon as a conference
 grew a fourth track.
+
+---
+
+## `TbcSwitch`
+
+```kotlin
+TbcSwitch(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,   // null = indicator only
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,      // required when standalone
+    enabled: Boolean = true,
+)
+```
+
+A 44×24 pill track with an 18dp thumb, inside a box that guarantees the 48dp
+target. On: accent track, `onAccent` thumb at the end. Off: `surfaceMuted` track
+with a `borderStrong` hairline, `textMuted` thumb at the start. Disabled and
+off: muted track, `borderSubtle` hairline, `textDisabled` thumb. Disabled and
+*on*: muted track, `accentBorder` hairline, `accent` thumb at the end — "on, and
+not yours to change" (the emergency category). An all-grey disabled-on switch
+was tried first and read as off.
+
+Not M3's `Switch`: its track and thumb colours come from `colorScheme` roles this
+theme neutralises, and its checked track is a tonal fill with no token here.
+
+Two usages:
+
+```kotlin
+// Standalone — the switch is the control.
+TbcSwitch(checked, onCheckedChange = { … }, contentDescription = "Keynote reminders")
+
+// Settings row — the row is the control, the switch only indicates.
+Row(
+    Modifier.toggleable(value = checked, role = Role.Switch, onValueChange = { … }),
+) {
+    Text("Keynote reminders", Modifier.weight(1f))
+    TbcSwitch(checked, onCheckedChange = null)
+}
+```
+
+Prefer the row form wherever there is a label: the whole row becomes the
+target, and the label is what a screen reader announces with the switch state.
 
 ---
 
@@ -386,7 +434,7 @@ Icon(TbcIcons.Calendar, contentDescription = null, tint = tokens.textMuted)
 ```
 
 Available: `User` `Users` `Calendar` `BarChart` `CheckCircle` `Hexagon`
-`LogOut` `Building` `Search` `MapPin` `Star` `Clock` `Lock` `Info`
+`LogOut` `Building` `Search` `MapPin` `Map` `Star` `Clock` `Lock` `Bell` `Info`
 `AlertTriangle` `ErrorCircle` `Close` `ChevronRight` `ChevronDown` `ArrowLeft`.
 
 Lucide geometry transcribed as `ImageVector`s — 24×24 outlines, 2px stroke,

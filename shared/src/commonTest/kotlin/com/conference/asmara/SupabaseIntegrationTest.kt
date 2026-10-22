@@ -3,6 +3,7 @@ package com.conference.asmara
 import com.conference.asmara.data.dto.VenueMapDto
 import com.conference.asmara.data.mapper.toDomain
 import com.conference.asmara.data.remote.DEFAULT_VENUE_SLUG
+import com.conference.asmara.data.remote.SupabaseAnnouncementRemoteDataSource
 import com.conference.asmara.data.remote.SupabaseScheduleRemoteDataSource
 import com.conference.asmara.data.remote.SupabaseVenueMapRemoteDataSource
 import io.github.jan.supabase.SupabaseClient
@@ -69,5 +70,16 @@ class SupabaseIntegrationTest {
     fun anUnknownVenueSlugReadsAsNoMapRatherThanAnError() = runBlocking {
         val client = anonClient() ?: return@runBlocking
         assertNull(SupabaseVenueMapRemoteDataSource(client).fetchVenueMap("no-such-venue"))
+    }
+
+    @Test
+    fun fetchAnnouncementsDecodesNewestFirst() = runBlocking {
+        val client = anonClient() ?: return@runBlocking
+        val announcements = SupabaseAnnouncementRemoteDataSource(client).fetchAnnouncements().map { it.toDomain() }
+
+        // Drafts are filtered by RLS, not by the client, so this is also the
+        // check that the policy and the grant line up.
+        assertTrue(announcements.none { it.slug == "day-two-doors" }, "draft announcement leaked to anon")
+        assertTrue(announcements.map { it.publishedAt } == announcements.map { it.publishedAt }.sortedDescending())
     }
 }

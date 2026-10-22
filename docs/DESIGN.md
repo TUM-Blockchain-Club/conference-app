@@ -417,8 +417,9 @@ this section is anatomy and provenance only.
 | `TbcButton` | Primary pill (135° blue→violet + accent glow), Secondary (transparent + 20% stroke), Tonal (`#242424`) | `.btn-primary` / `.btn-secondary` |
 | `TbcBadge` | Outlined; accent, neutral, success, warning, danger | "Core Member", "IT & Development" |
 | `CountPill` | Muted text on `#242424`, pill | "7 departments", "132 total" |
-| `PillTabRow` | Scrollable pills; selected = solid blue + icon; edge fade | Dashboard nav |
+| `PillTabRow` | Scrollable pills; selected = solid blue + icon; edge fade; optional `CountPill` badge | Dashboard nav |
 | `TbcFilterChip` / `FilterChipRow` | Same pill language, multi-select; selection = fill **and** check glyph **and** `Role.Checkbox` | Schedule filters |
+| `TbcSwitch` | 44×24 pill track + 18dp thumb in a 48dp target; on = accent track, thumb at end; off = muted track + 20% stroke, thumb at start | App-only (no web toggle) |
 | `EmptyState` | Haloed glyph + headline + explanation + at most one action | Schedule with no results |
 | `FieldLabel` | Uppercase, 0.9sp tracking, muted, optional padlock | Profile form |
 | `TbcTextField` | Label above, opaque `#242424` container, 8dp | Profile form |
@@ -539,6 +540,10 @@ purpose:
     `SectionHeader` weights its title so the title absorbs the shortfall. At a
     1.8x font scale the unweighted `SpaceBetween` row squeezed the pill into a
     column of single letters.
+16. **`TbcSwitch` added**, with no web equivalent — the platform has no toggle.
+    Stock M3 `Switch` is not used: its colours come from `colorScheme` roles
+    this theme neutralises. State is carried by thumb *position* as well as
+    track colour, so it reads without colour vision.
 
 ---
 
